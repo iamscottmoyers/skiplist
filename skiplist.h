@@ -17,6 +17,7 @@ typedef struct skiplist_t skiplist_t;
  */
 typedef struct node_t node_t;
 
+
 /**
  * @brief Creates a new skiplist.
  *
@@ -76,6 +77,14 @@ int skiplist_remove( skiplist_t *skiplist, unsigned int value );
 void skiplist_printf( const skiplist_t *skiplist );
 
 /**
+ * @brief Prints the skiplist in DOT format to the provided file stream
+ *
+ * @param [in] skiplist  The skiplist to print.
+ * @param [in] stream    The filestream to print to.
+ */
+void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist );
+
+/**
  * @brief Returns the value of the node at the given index.
  *
  * @pre @p index must be less than the number of elements in @p skiplist (@see skiplist_size()).
@@ -93,7 +102,7 @@ unsigned int skiplist_at_index( const skiplist_t *skiplist, unsigned int index )
  * @param [in] skiplist  The skiplist to return the first element for
  * @return A pointer to the first node in the skiplist, NULL if the skiplist is empty.
  */
-node_t *skiplist_begin( skiplist_t *skiplist );
+static node_t *skiplist_begin( skiplist_t *skiplist );
 
 /**
  * @brief Returns a pointer to one past the end of the skiplist.
@@ -102,7 +111,7 @@ node_t *skiplist_begin( skiplist_t *skiplist );
  *
  * @return  A NULL pointer.
  */
-node_t *skiplist_end( void );
+static node_t *skiplist_end( void );
 
 /**
  * @brief Returns a pointer to the node after @p cur in the skiplist.
@@ -111,7 +120,7 @@ node_t *skiplist_end( void );
  *
  * @return  A pointer to the node after @p cur.
  */
-node_t *skiplist_next( const node_t *cur );
+static node_t *skiplist_next( const node_t *cur );
 
 /**
  * @brief Returns the number of nodes in the skiplist.
@@ -120,6 +129,8 @@ node_t *skiplist_next( const node_t *cur );
  *
  * @return The number of nodes in @p skiplist.
  */
-unsigned int skiplist_size( const skiplist_t *skiplist );
+static unsigned int skiplist_size( const skiplist_t *skiplist );
+
+#include "skiplist_inline.h"
 
 #endif
