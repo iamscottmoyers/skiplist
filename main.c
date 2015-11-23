@@ -62,12 +62,22 @@ static int simple_test(void)
 	return 0;
 }
 
+/** Function pointer for a test case. */
 typedef int (*test_pfn)(void);
+
+/**
+ * @brief Structure for a test case.
+ */
 typedef struct test_case_t
 {
+	/** Function pointer to call to execute the test. */
 	test_pfn pfn;
+
+	/** The name of the test. */
 	const char *name;
 } test_case_t;
+
+/** Macro for defining the test name the same as the function name. */
 #define TEST_CASE(_name) {_name, #_name}
 
 int main( int argc, char *argv[] )

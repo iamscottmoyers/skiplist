@@ -12,11 +12,12 @@ skiplist: skiplist.o main.c
 test: skiplist
 	./skiplist
 
-html: Doxyfile skiplist.c skiplist.h main.c
+html: Doxyfile skiplist.c skiplist.h skiplist_inline.h skiplist_types.h main.c
 	doxygen
 
 .PHONY: clean
 clean:
 	rm -f skiplist
 	rm -f skiplist.o
+	rm -rf skiplist.dSYM
 	rm -rf html
