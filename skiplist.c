@@ -55,17 +55,19 @@ static unsigned int skiplist_rng_gen_u32( skiplist_rng_t *rng )
 	return (rng->m_z << 16) + rng->m_w;
 }
 
-skiplist_t *skiplist_create( unsigned int size_estimate_log2 )
+skiplist_t *skiplist_create( unsigned int size_estimate_log2, skiplist_compare_pfn compare )
 {
 	skiplist_t *skiplist;
 
 	assert( size_estimate_log2 > 0 );
 	assert( size_estimate_log2 < MAX_LIST_DEPTH );
+	assert( compare );
 
 	skiplist = malloc( sizeof( skiplist_t ) + sizeof( link_t ) * (size_estimate_log2 - 1) );
 	if( NULL != skiplist )
 	{
 		skiplist_rng_init( &skiplist->rng );
+		skiplist->compare = compare;
 		skiplist->num_nodes = 0;
 		skiplist->head.levels = size_estimate_log2;
 		memset( skiplist->head.link, 0, sizeof( link_t ) * size_estimate_log2 );
@@ -101,11 +103,12 @@ unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value )
 	{
 		for( ; NULL != cur->link[i].next; cur = cur->link[i].next )
 		{
-			if( cur->link[i].next->value > value )
+			int comparison = skiplist->compare( cur->link[i].next->value, value );
+			if( comparison > 0 )
 			{
 				break;
 			}
-			else if( cur->link[i].next->value == value )
+			else if( 0 == comparison )
 			{
 				return 1;
 			}
@@ -158,7 +161,7 @@ static void skiplist_find_insert_path( skiplist_t *skiplist, uintptr_t value,
 
 			/* ... until we find a value greater
 			   than our input value... */
-			if( cur->link[i].next->value > value )
+			if( skiplist->compare( cur->link[i].next->value, value ) > 0 )
 			{
 				/* ... then move on to the lower levels. */
 				break;
@@ -191,7 +194,7 @@ int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 	skiplist_find_insert_path( skiplist, value, update, distances );
 
 	/* Only insert the new value if the set doesn't already contain it. */
-	if( update[0] == &skiplist->head || update[0]->value != value )
+	if( update[0] == &skiplist->head || skiplist->compare( update[0]->value, value ) )
 	{
 		unsigned int node_levels;
 		node_t *new_node;
@@ -259,7 +262,7 @@ static void skiplist_find_remove_path( skiplist_t *skiplist, uintptr_t value, no
 
 			/* ... until we find a value greater
 			   than or equal to our input value... */
-			if( cur->link[i].next->value >= value )
+			if( skiplist->compare( cur->link[i].next->value, value ) >= 0 )
 			{
 				/* ... then move on to the lower levels. */
 				break;
@@ -287,7 +290,7 @@ int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
 	skiplist_find_remove_path( skiplist, value, update );
 
 	remove = update[0]->link[0].next;
-	if( remove->value != value )
+	if( skiplist->compare( remove->value, value ) )
 	{
 		err = -1;
 	}

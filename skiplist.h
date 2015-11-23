@@ -1,22 +1,7 @@
 #ifndef SKIPLIST_H
 #define SKIPLIST_H
 
-/**
- * @brief Forward declaration of a skiplist structure.
- *
- * Required to be able to use the skiplist interface without exposing the internal
- * implementation details.
- */
-typedef struct skiplist_t skiplist_t;
-
-/**
- * @brief Forward declaration of a node structure.
- *
- * Required to be able to use the skiplist interface without exposing the internal
- * implementation details.
- */
-typedef struct node_t node_t;
-
+#include "skiplist_types.h"
 
 /**
  * @brief Creates a new skiplist.
@@ -24,10 +9,13 @@ typedef struct node_t node_t;
  * @param [in] size_estimate_log2  An estimate of log2() of the maximum number
  *                                 of elements that will appear in the list at
  *                                 the same time.
+ * @param [in] compare             Function for comparing the values that will
+ *                                 be used in this skiplist.
  *
  * @return If successfully a new skiplist is returned, otherwise NULL.
  */
-skiplist_t *skiplist_create( unsigned int size_estimate_log2 );
+skiplist_t *skiplist_create( unsigned int size_estimate_log2,
+                             skiplist_compare_pfn compare );
 
 /**
  * @brief Destroys a skiplist that was created via skiplist_create().
@@ -121,6 +109,15 @@ static node_t *skiplist_end( void );
  * @return  A pointer to the node after @p cur.
  */
 static node_t *skiplist_next( const node_t *cur );
+
+/**
+ * @brief Returns the value at the given node.
+ *
+ * @param [in] node  The node to return the value for.
+ *
+ * @return The value at the given node.
+ */
+static uintptr_t skiplist_node_value( const node_t *node );
 
 /**
  * @brief Returns the number of nodes in the skiplist.

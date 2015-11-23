@@ -48,6 +48,15 @@ typedef struct skiplist_rng_t
 } skiplist_rng_t;
 
 /**
+ * @brief Function pointer typedef for comparing nodes
+ *
+ * @retval 0   if @p a and @p b are equal
+ * @retval < 0 if @p a is less than @p b
+ * @retval > 0 if @p a is greater than @p b
+ */
+typedef int (*skiplist_compare_pfn)( const uintptr_t a, const uintptr_t b );
+
+/**
  * @brief The skiplist datastructure.
  */
 typedef struct skiplist_t
@@ -63,6 +72,9 @@ typedef struct skiplist_t
 	    ensuring mutual exclusion before calling into this module.
 	 */
 	skiplist_rng_t rng;
+
+	/** Function pointer for comparing nodes. */
+	skiplist_compare_pfn compare;
 
 	/** The number of nodes in this skiplist. */
 	unsigned int num_nodes;
