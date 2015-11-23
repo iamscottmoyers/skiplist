@@ -1,8 +1,7 @@
 CC=gcc
-CFLAGS=-O2 -Wall -pedantic -Wextra
+CFLAGS=-g -Wall -pedantic -Wextra
 
-
-all: skiplist html
+default: skiplist
 
 skiplist.o: skiplist.c skiplist.h skiplist_inline.h skiplist_types.h
 	gcc -c $(CFLAGS) skiplist.c -o skiplist.o
