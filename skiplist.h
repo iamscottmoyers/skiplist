@@ -45,7 +45,7 @@ void skiplist_destroy( skiplist_t *skiplist );
  * @retval 1             If the value exists in the skiplist set.
  * @retval 0             If the value doesn't exist in the skiplist set.
  */
-unsigned int skiplist_contains( const skiplist_t *skiplist, unsigned int value );
+unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value );
 
 /**
  * @brief Insert a value into a skiplist.
@@ -56,7 +56,7 @@ unsigned int skiplist_contains( const skiplist_t *skiplist, unsigned int value )
  * @retval 0  if successful.
  * @retval -1 if a memory allocation failed.
  */
-int skiplist_insert( skiplist_t *skiplist, unsigned int value );
+int skiplist_insert( skiplist_t *skiplist, uintptr_t value );
 
 /**
  * @brief Removes a value from a skiplist.
@@ -67,7 +67,7 @@ int skiplist_insert( skiplist_t *skiplist, unsigned int value );
  * @retval 0  if the value was successfully removed.
  * @retval -1 if the value did not exist in the skiplist.
  */
-int skiplist_remove( skiplist_t *skiplist, unsigned int value );
+int skiplist_remove( skiplist_t *skiplist, uintptr_t value );
 
 /**
  * @brief Prints the skiplist in DOT format to stdout.
@@ -94,7 +94,7 @@ void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist );
  *
  * @return The value at index @p index.
  */
-unsigned int skiplist_at_index( const skiplist_t *skiplist, unsigned int index );
+uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index );
 
 /**
  * @brief Returns a pointer to the start of the skiplist.

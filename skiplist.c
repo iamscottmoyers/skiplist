@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 #include "skiplist.h"
 
@@ -90,7 +91,7 @@ void skiplist_destroy( skiplist_t *skiplist )
 	}
 }
 
-unsigned int skiplist_contains( const skiplist_t *skiplist, unsigned int value )
+unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value )
 {
 	unsigned int i;
 	const node_t *cur;
@@ -134,7 +135,7 @@ static unsigned int skiplist_compute_node_level( skiplist_t *skiplist )
 	return node_levels;
 }
 
-static void skiplist_find_insert_path( skiplist_t *skiplist, unsigned int value,
+static void skiplist_find_insert_path( skiplist_t *skiplist, uintptr_t value,
                                        node_t *path[], unsigned int distances[] )
 {
 	unsigned int i;
@@ -179,7 +180,7 @@ static void skiplist_find_insert_path( skiplist_t *skiplist, unsigned int value,
 	}
 }
 
-int skiplist_insert( skiplist_t *skiplist, unsigned int value )
+int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 {
 	node_t *update[MAX_LIST_DEPTH];
 	unsigned int distances[MAX_LIST_DEPTH];
@@ -240,7 +241,7 @@ int skiplist_insert( skiplist_t *skiplist, unsigned int value )
 	return err;
 }
 
-static void skiplist_find_remove_path( skiplist_t *skiplist, unsigned int value, node_t *path[] )
+static void skiplist_find_remove_path( skiplist_t *skiplist, uintptr_t value, node_t *path[] )
 {
 	unsigned int i;
 	node_t *cur;
@@ -274,7 +275,7 @@ static void skiplist_find_remove_path( skiplist_t *skiplist, unsigned int value,
 	}
 }
 
-int skiplist_remove( skiplist_t *skiplist, unsigned int value )
+int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
 {
 	node_t *update[MAX_LIST_DEPTH];
 	node_t *remove;
@@ -342,7 +343,7 @@ void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
 			}
 			else
 			{
-				printf( "\"%p\\lvalue: %u\"", (void *)cur, cur->value );
+				printf( "\"%p\\lvalue: %" PRIxPTR "\"", (void *)cur, cur->value );
 			}
 
 			printf( "->" );
@@ -353,7 +354,7 @@ void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
 			}
 			else
 			{
-				printf( "\"%p\\lvalue: %u\"", (void *)cur->link[i].next, cur->link[i].next->value );
+				printf( "\"%p\\lvalue: %" PRIxPTR "\"", (void *)cur->link[i].next, cur->link[i].next->value );
 			}
 
 			printf( "[ label=\"%u\" ];\n", cur->link[i].width );
@@ -368,7 +369,7 @@ void skiplist_printf( const skiplist_t *skiplist )
 	skiplist_fprintf( stdout, skiplist );
 }
 
-unsigned int skiplist_at_index( const skiplist_t *skiplist, unsigned int index )
+uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index )
 {
 	unsigned int i;
 	unsigned int remaining;

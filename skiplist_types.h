@@ -26,7 +26,7 @@ typedef struct link_t
 typedef struct node_t
 {
 	/** The value for this node. */
-	unsigned int value;
+	uintptr_t value;
 
 	/** The number of next pointers in this node. */
 	unsigned int levels;
