@@ -1,0 +1,4 @@
+* Tests - Functionality and Performance.
+* Change stored data item to a uintptr_t + comparison function rather than assuming an integer.
+* Option for making data items unique / not unique.
+* Option for adding removing the quick indexing feature.
