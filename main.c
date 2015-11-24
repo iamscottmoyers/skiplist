@@ -227,40 +227,65 @@ static int pointers( void )
 }
 
 /**
- * @brief TEST_CASE - Measures the complexity of inserting into a skiplist.
+ * @brief TEST_CASE - Measures trade off between number of elements in the list and number of links per node when looking up items.
  */
-static int average_insertion_time_64k( void )
+static int link_trade_off_lookup( void )
 {
 	const unsigned int insertions_log2 = 16;
+	const unsigned int max_links = SKIPLIST_MAX_LINKS;
 	unsigned int i;
 	FILE *fp;
+	const char *comma = "";
 
-	fp = fopen( "average_insertion_time_64k.gplot", "w" );
+	fp = fopen( "link_trade_off_lookup.gplot", "w" );
 	if( !fp ) return -1;
-	fprintf(fp, "set title \"Average Insertion Time for Varying Sized Skiplists\"\n");
+	fprintf(fp, "set term qt\n");
+	fprintf(fp, "set key off\n");
+	fprintf(fp, "set logscale\n");
+	fprintf(fp, "set style textbox opaque noborder\n");
+	fprintf(fp, "set title \"Average Lookup Time for Skiplists with Varying Link Counts\"\n");
 	fprintf(fp, "set xlabel \"Number of Elements in the Skiplist\"\n");
-	fprintf(fp, "set ylabel \"Average Time for One Insertion (ns)\"\n");
-	fprintf(fp, "plot \"average_insertion_time_64k.dat\" using 1:2 title \"Average Insertion Time\"\n");
+	fprintf(fp, "set ylabel \"Average Time for One Lookup (ns)\"\n");
+	fprintf(fp, "plot " );
+	for( i = 0; i < max_links; ++i )
+	{
+		fprintf(fp, "%s\"link_trade_off_lookup.dat\" using 1:%u with lines lt -1, \"\" using 1:%u:($0*0+%u) with labels center boxed notitle",
+		        comma, i + 2, i + 2, i + 1);
+		comma = ",\\\n\t";
+	}
+	fprintf(fp, "\n");
+	fprintf(fp, "pause -1\n");
 	fclose( fp );
 
-	fp = fopen( "average_insertion_time_64k.dat", "w" );
+	fp = fopen( "link_trade_off_lookup.dat", "w" );
 	if( !fp ) return -1;
 
-	for( i = 1; i < (1 << insertions_log2); i += 512 )
+	for( i = 1; i < (1 << insertions_log2); i <<= 1 )
 	{
-		struct timespec start, end;
-		unsigned int j;
-		skiplist_t *skiplist = skiplist_create( insertions_log2, int_compare, int_fprintf );
-		if( !skiplist ) return -1;
+		unsigned int links_log2;
+		fprintf( fp, "%u", i );
+		for( links_log2 = 1; links_log2 <= max_links; ++links_log2 )
+		{
+			unsigned int j;
+			skiplist_t *skiplist;
+			struct timespec start, end;
 
-		time_stamp( &start );
-		for( j = 0; j < i; ++j )
-			if( skiplist_insert( skiplist, rand() ) )
-				return -1;
-		time_stamp( &end );
-		fprintf( fp, "%u\t%llu\n", i, time_diff_ns( &start, &end ) / i );
+			skiplist = skiplist_create( links_log2, int_compare, int_fprintf );
+			if( !skiplist ) return -1;
 
-		skiplist_destroy( skiplist );
+			for( j = 0; j < i; ++j )
+				if( skiplist_insert( skiplist, j ) )
+					return -1;
+
+			time_stamp( &start );
+			for( j = 0; j < i; ++j )
+				if( !skiplist_contains( skiplist, j ) )
+					return -1;
+			time_stamp( &end );
+			fprintf( fp, "\t%f", time_diff_ns( &start, &end ) / (double)i );
+			skiplist_destroy( skiplist );
+		}
+		fprintf( fp, "\n" );
 	}
 
 	fclose( fp );
@@ -269,52 +294,68 @@ static int average_insertion_time_64k( void )
 }
 
 /**
- * @brief TEST_CASE - Measures the complexity of looking up data from a skiplist.
+ * @brief TEST_CASE - Measures trade off between number of elements in the list and number of links per node when inserting items.
  */
-static int average_lookup_time_64k( void )
+static int link_trade_off_insert( void )
 {
 	const unsigned int insertions_log2 = 16;
+	const unsigned int max_links = SKIPLIST_MAX_LINKS;
 	unsigned int i;
 	FILE *fp;
+	const char *comma = "";
 
-	fp = fopen( "average_lookup_time_64k.gplot", "w" );
+	fp = fopen( "link_trade_off_insert.gplot", "w" );
 	if( !fp ) return -1;
-	fprintf(fp, "set title \"Average Lookup Time for Varying Sized Skiplists\"\n");
+	fprintf(fp, "set term qt\n");
+	fprintf(fp, "set key off\n");
+	fprintf(fp, "set logscale\n");
+	fprintf(fp, "set style textbox opaque noborder\n");
+	fprintf(fp, "set title \"Average Insertion Time for Skiplists with Varying Link Counts\"\n");
 	fprintf(fp, "set xlabel \"Number of Elements in the Skiplist\"\n");
-	fprintf(fp, "set ylabel \"Average Time for One Lookup (ns)\"\n");
-	fprintf(fp, "plot \"average_lookup_time_64k.dat\" using 1:2 title \"Average Lookup Time\"\n");
+	fprintf(fp, "set ylabel \"Average Time for One Insertion (ns)\"\n");
+	fprintf(fp, "plot " );
+	for( i = 0; i < max_links; ++i )
+	{
+		fprintf(fp, "%s\"link_trade_off_insert.dat\" using 1:%u with lines lt -1, \"\" using 1:%u:($0*0+%u) with labels center boxed notitle",
+		        comma, i + 2, i + 2, i + 1);
+		comma = ",\\\n\t";
+	}
+	fprintf(fp, "\n");
+	fprintf(fp, "pause -1\n");
 	fclose( fp );
 
-	fp = fopen( "average_lookup_time_64k.dat", "w" );
+	fp = fopen( "link_trade_off_insert.dat", "w" );
 	if( !fp ) return -1;
 
-	for( i = 1; i < (1 << insertions_log2); i += 256 )
+	for( i = 1; i < (1 << insertions_log2); i <<= 1 )
 	{
-		unsigned int j;
-		skiplist_t *skiplist;
-		struct timespec start, end;
+		unsigned int links_log2;
+		fprintf( fp, "%u", i );
+		for( links_log2 = 1; links_log2 <= max_links; ++links_log2 )
+		{
+			unsigned int j;
+			skiplist_t *skiplist;
+			struct timespec start, end;
 
-		skiplist = skiplist_create( insertions_log2, int_compare, int_fprintf );
-		if( !skiplist ) return -1;
+			skiplist = skiplist_create( links_log2, int_compare, int_fprintf );
+			if( !skiplist ) return -1;
 
-		for( j = 0; j < i; ++j )
-			if( skiplist_insert( skiplist, j ) )
-				return -1;
-
-		time_stamp( &start );
-		for( j = 0; j < i; ++j )
-			if( !skiplist_contains( skiplist, j ) )
-				return -1;
-		time_stamp( &end );
-		fprintf( fp, "%u\t%llu\n", i, time_diff_ns( &start, &end ) / i );
-
-		skiplist_destroy( skiplist );
+			time_stamp( &start );
+			for( j = 0; j < i; ++j )
+				if( skiplist_insert( skiplist, rand() ) )
+					return -1;
+			time_stamp( &end );
+			fprintf( fp, "\t%f", time_diff_ns( &start, &end ) / (double)i );
+			skiplist_destroy( skiplist );
+		}
+		fprintf( fp, "\n" );
 	}
 
 	fclose( fp );
 
 	return 0;
 }
+
 
 /** Function pointer for a test case. */
 typedef int (*test_pfn)(void);
@@ -341,8 +382,8 @@ int main( int argc, char *argv[] )
 	{
 		TEST_CASE( simple ),
 		TEST_CASE( pointers ),
-		TEST_CASE( average_insertion_time_64k ),
-		TEST_CASE( average_lookup_time_64k )
+		TEST_CASE( link_trade_off_lookup ),
+		TEST_CASE( link_trade_off_insert )
 	};
 
 	(void)argc;
