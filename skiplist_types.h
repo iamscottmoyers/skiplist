@@ -5,7 +5,7 @@
    implementation is 32, due to the random number generator only
    generating 32 bit numbers. This value allows for efficient
    O(log(n)) skiplist insertion where n is up to 2^32 nodes. */
-#define MAX_LIST_DEPTH (32)
+#define SKIPLIST_MAX_LINKS (32)
 
 /**
  * @brief Represents a link between two nodes in a skiplist.

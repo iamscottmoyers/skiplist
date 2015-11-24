@@ -60,7 +60,7 @@ skiplist_t *skiplist_create( unsigned int size_estimate_log2, skiplist_compare_p
 	skiplist_t *skiplist;
 
 	assert( size_estimate_log2 > 0 );
-	assert( size_estimate_log2 < MAX_LIST_DEPTH );
+	assert( size_estimate_log2 < SKIPLIST_MAX_LINKS );
 	assert( compare );
 	assert( print );
 
@@ -187,8 +187,8 @@ static void skiplist_find_insert_path( skiplist_t *skiplist, uintptr_t value,
 
 int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 {
-	node_t *update[MAX_LIST_DEPTH];
-	unsigned int distances[MAX_LIST_DEPTH];
+	node_t *update[SKIPLIST_MAX_LINKS];
+	unsigned int distances[SKIPLIST_MAX_LINKS];
 	int err = 0;
 
 	assert( skiplist );
@@ -282,7 +282,7 @@ static void skiplist_find_remove_path( skiplist_t *skiplist, uintptr_t value, no
 
 int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
 {
-	node_t *update[MAX_LIST_DEPTH];
+	node_t *update[SKIPLIST_MAX_LINKS];
 	node_t *remove;
 	int err = 0;
 

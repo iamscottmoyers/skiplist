@@ -1,10 +1,37 @@
 #include <assert.h>
-#include <sys/time.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>
+#include <time.h>
+
+#ifdef __MACH__
+#include <mach/clock.h>
+#include <mach/mach.h>
+#endif
 
 #include "skiplist.h"
+
+static void time_stamp( struct timespec *stamp )
+{
+#ifdef __MACH__
+	clock_serv_t cclock;
+	mach_timespec_t mts;
+	host_get_clock_service( mach_host_self(), CALENDAR_CLOCK, &cclock );
+	clock_get_time( cclock, &mts );
+	mach_port_deallocate( mach_task_self(), cclock );
+	stamp->tv_sec = mts.tv_sec;
+	stamp->tv_nsec = mts.tv_nsec;
+#else
+	clock_gettime( CLOCK_MONOTONIC, stamp );
+#endif
+}
+
+static unsigned long long time_diff_ns( const struct timespec *start, const struct timespec *end )
+{
+	unsigned long long seconds = end->tv_sec - start->tv_sec;
+	unsigned long long nano_seconds = end->tv_nsec - start->tv_nsec;
+	return seconds * 1000000000ULL + nano_seconds;
+}
 
 /**
  * @brief Prints a 'dot' representation of the skiplist to the given filename.
@@ -34,9 +61,8 @@ static void int_fprintf( FILE *stream, const uintptr_t value )
 	fprintf( stream, "%d", (int)value );
 }
 
-
 /**
- * @brief Sanity test of some key skiplist APIs using integers.
+ * @brief TEST_CASE - Sanity test of some key skiplist APIs using integers.
  */
 static int simple( void )
 {
@@ -66,10 +92,8 @@ static int simple( void )
 	}
 
 	for( i = 5; i < 10; ++i )
-	{
 		if( skiplist_remove( skiplist, i ) )
 			return -1;
-	}
 
 	for( iter = skiplist_begin( skiplist );
 	     iter != skiplist_end();
@@ -81,9 +105,7 @@ static int simple( void )
 	}
 
 	for( i = 0; i < skiplist_size( skiplist ); ++i )
-	{
 		skiplist_at_index( skiplist, i );
-	}
 
 	if( skiplist_to_file( "simple.dot", skiplist ) )
 		return -1;
@@ -124,7 +146,7 @@ static void coord_fprintf( FILE *stream, const uintptr_t value )
 }
 
 /**
- * @brief Sanity test of some key skiplist APIs using a pointer to data items.
+ * @brief TEST_CASE - Sanity test of some key skiplist APIs using a pointer to data items.
  */
 static int pointers( void )
 {
@@ -170,10 +192,8 @@ static int pointers( void )
 	if( !skiplist ) return -1;
 
 	for( i = 0; i < sizeof(coords) / sizeof(coords[0]); ++i )
-	{
 		if( skiplist_insert( skiplist, (uintptr_t) &coords[i] ) )
 			return -1;
-	}
 
 	/* Output skiplist for debugging purposes. */
 	if( skiplist_to_file( "pointers.dot", skiplist ) )
@@ -192,10 +212,8 @@ static int pointers( void )
 
 	/* Confirm the skiplist contains what we expect. */
 	for( i = 0; i < sizeof(coords) / sizeof(coords[0]); ++i )
-	{
 		if( !skiplist_contains( skiplist, (uintptr_t) &coords[i] ) )
 			return -1;
-	}
 
 	/* If we use a different pointer to point to the same values the skiplist should skill contain it. */
 	tmp = coords[0];
@@ -204,6 +222,96 @@ static int pointers( void )
 
 	/* Free resources. */
 	skiplist_destroy( skiplist );
+
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Measures the complexity of inserting into a skiplist.
+ */
+static int average_insertion_time_64k( void )
+{
+	const unsigned int insertions_log2 = 16;
+	unsigned int i;
+	FILE *fp;
+
+	fp = fopen( "average_insertion_time_64k.gplot", "w" );
+	if( !fp ) return -1;
+	fprintf(fp, "set title \"Average Insertion Time for Varying Sized Skiplists\"\n");
+	fprintf(fp, "set xlabel \"Number of Elements in the Skiplist\"\n");
+	fprintf(fp, "set ylabel \"Average Time for One Insertion (ns)\"\n");
+	fprintf(fp, "plot \"average_insertion_time_64k.dat\" using 1:2 title \"Average Insertion Time\"\n");
+	fclose( fp );
+
+	fp = fopen( "average_insertion_time_64k.dat", "w" );
+	if( !fp ) return -1;
+
+	for( i = 1; i < (1 << insertions_log2); i += 512 )
+	{
+		struct timespec start, end;
+		unsigned int j;
+		skiplist_t *skiplist = skiplist_create( insertions_log2, int_compare, int_fprintf );
+		if( !skiplist ) return -1;
+
+		time_stamp( &start );
+		for( j = 0; j < i; ++j )
+			if( skiplist_insert( skiplist, rand() ) )
+				return -1;
+		time_stamp( &end );
+		fprintf( fp, "%u\t%llu\n", i, time_diff_ns( &start, &end ) / i );
+
+		skiplist_destroy( skiplist );
+	}
+
+	fclose( fp );
+
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Measures the complexity of looking up data from a skiplist.
+ */
+static int average_lookup_time_64k( void )
+{
+	const unsigned int insertions_log2 = 16;
+	unsigned int i;
+	FILE *fp;
+
+	fp = fopen( "average_lookup_time_64k.gplot", "w" );
+	if( !fp ) return -1;
+	fprintf(fp, "set title \"Average Lookup Time for Varying Sized Skiplists\"\n");
+	fprintf(fp, "set xlabel \"Number of Elements in the Skiplist\"\n");
+	fprintf(fp, "set ylabel \"Average Time for One Lookup (ns)\"\n");
+	fprintf(fp, "plot \"average_lookup_time_64k.dat\" using 1:2 title \"Average Lookup Time\"\n");
+	fclose( fp );
+
+	fp = fopen( "average_lookup_time_64k.dat", "w" );
+	if( !fp ) return -1;
+
+	for( i = 1; i < (1 << insertions_log2); i += 256 )
+	{
+		unsigned int j;
+		skiplist_t *skiplist;
+		struct timespec start, end;
+
+		skiplist = skiplist_create( insertions_log2, int_compare, int_fprintf );
+		if( !skiplist ) return -1;
+
+		for( j = 0; j < i; ++j )
+			if( skiplist_insert( skiplist, j ) )
+				return -1;
+
+		time_stamp( &start );
+		for( j = 0; j < i; ++j )
+			if( !skiplist_contains( skiplist, j ) )
+				return -1;
+		time_stamp( &end );
+		fprintf( fp, "%u\t%llu\n", i, time_diff_ns( &start, &end ) / i );
+
+		skiplist_destroy( skiplist );
+	}
+
+	fclose( fp );
 
 	return 0;
 }
@@ -232,7 +340,9 @@ int main( int argc, char *argv[] )
 	const test_case_t tests[] =
 	{
 		TEST_CASE( simple ),
-		TEST_CASE( pointers )
+		TEST_CASE( pointers ),
+		TEST_CASE( average_insertion_time_64k ),
+		TEST_CASE( average_lookup_time_64k )
 	};
 
 	(void)argc;
