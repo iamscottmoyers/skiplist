@@ -60,7 +60,7 @@ skiplist_t *skiplist_create( unsigned int size_estimate_log2, skiplist_compare_p
 	skiplist_t *skiplist;
 
 	assert( size_estimate_log2 > 0 );
-	assert( size_estimate_log2 < SKIPLIST_MAX_LINKS );
+	assert( size_estimate_log2 <= SKIPLIST_MAX_LINKS );
 	assert( compare );
 	assert( print );
 
