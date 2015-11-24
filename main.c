@@ -381,7 +381,7 @@ static int link_trade_off_insert( void )
 		for( i = 1; i < next; ++i )
 		{
 			const unsigned int node_count = 1 << (i - 1);
-			fprintf(fp, "%u\t%f\n", 1 << i,
+			fprintf(fp, "%u\t%f\n", node_count,
 			        time_diff_ns( &stamps[0], &stamps[i] ) / (double)node_count );
 		}
 
