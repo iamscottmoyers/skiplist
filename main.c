@@ -11,6 +11,9 @@
 
 #include "skiplist.h"
 
+/**
+ * @brief Acquire a current timestamp
+ */
 static void time_stamp( struct timespec *stamp )
 {
 #ifdef __MACH__
@@ -26,6 +29,9 @@ static void time_stamp( struct timespec *stamp )
 #endif
 }
 
+/**
+ * @brief Return the difference between two timestamps in nanoseconds
+ */
 static unsigned long long time_diff_ns( const struct timespec *start, const struct timespec *end )
 {
 	unsigned long long seconds = end->tv_sec - start->tv_sec;
@@ -227,31 +233,35 @@ static int pointers( void )
 }
 
 /**
- * @brief TEST_CASE - Measures trade off between number of elements in the list and number of links per node when looking up items.
+ * @brief TEST_CASE - Measures lookup trade off between number of elements in the list and number of links per node.
  */
 static int link_trade_off_lookup( void )
 {
-	const unsigned int insertions_log2 = 16;
-	const unsigned int max_links = SKIPLIST_MAX_LINKS;
+#define MAX_LINKS (SKIPLIST_MAX_LINKS)
+#define INSERTIONS_LOG2 (16)
 	unsigned int i;
 	FILE *fp;
-	const char *comma = "";
+	const char *seperator;
 
 	fp = fopen( "link_trade_off_lookup.gplot", "w" );
 	if( !fp ) return -1;
 	fprintf(fp, "set term qt\n");
 	fprintf(fp, "set key off\n");
 	fprintf(fp, "set logscale\n");
+	fprintf(fp, "set grid xtics ytics mxtics mytics\n");
 	fprintf(fp, "set style textbox opaque noborder\n");
 	fprintf(fp, "set title \"Average Lookup Time for Skiplists with Varying Link Counts\"\n");
 	fprintf(fp, "set xlabel \"Number of Elements in the Skiplist\"\n");
 	fprintf(fp, "set ylabel \"Average Time for One Lookup (ns)\"\n");
 	fprintf(fp, "plot " );
-	for( i = 0; i < max_links; ++i )
+
+	seperator = "";
+	for( i = 0; i < MAX_LINKS; ++i )
 	{
-		fprintf(fp, "%s\"link_trade_off_lookup.dat\" using 1:%u with lines lt -1, \"\" using 1:%u:($0*0+%u) with labels center boxed notitle",
-		        comma, i + 2, i + 2, i + 1);
-		comma = ",\\\n\t";
+		fprintf(fp, "%s\"link_trade_off_lookup.dat\" using 1:%u with lines lt -1,"
+		        "\"\" using 1:%u:($0*0+%u) with labels center boxed notitle",
+		        seperator, i + 2, i + 2, i + 1);
+		seperator = ",\\\n\t";
 	}
 	fprintf(fp, "\n");
 	fprintf(fp, "pause -1\n");
@@ -260,17 +270,17 @@ static int link_trade_off_lookup( void )
 	fp = fopen( "link_trade_off_lookup.dat", "w" );
 	if( !fp ) return -1;
 
-	for( i = 1; i < (1 << insertions_log2); i <<= 1 )
+	for( i = 1; i < (1 << INSERTIONS_LOG2); i <<= 1 )
 	{
-		unsigned int links_log2;
+		unsigned int links;
 		fprintf( fp, "%u", i );
-		for( links_log2 = 1; links_log2 <= max_links; ++links_log2 )
+		for( links = 1; links <= MAX_LINKS; ++links )
 		{
 			unsigned int j;
 			skiplist_t *skiplist;
 			struct timespec start, end;
 
-			skiplist = skiplist_create( links_log2, int_compare, int_fprintf );
+			skiplist = skiplist_create( links, int_compare, int_fprintf );
 			if( !skiplist ) return -1;
 
 			for( j = 0; j < i; ++j )
@@ -290,72 +300,98 @@ static int link_trade_off_lookup( void )
 
 	fclose( fp );
 
+#undef MAX_LINKS
+#undef INSERTIONS_LOG2
 	return 0;
 }
 
 /**
- * @brief TEST_CASE - Measures trade off between number of elements in the list and number of links per node when inserting items.
+ * @brief TEST_CASE - Measures insertion trade off between number of elements in the list and number of links per node.
  */
 static int link_trade_off_insert( void )
 {
-	const unsigned int insertions_log2 = 16;
-	const unsigned int max_links = SKIPLIST_MAX_LINKS;
-	unsigned int i;
+#define MAX_LINKS (SKIPLIST_MAX_LINKS)
+#define INSERTIONS_LOG2 (16)
+
+	struct timespec stamps[INSERTIONS_LOG2 + 2];
 	FILE *fp;
-	const char *comma = "";
+	unsigned int links;
+	unsigned int i;
+	const char *seperator;
 
 	fp = fopen( "link_trade_off_insert.gplot", "w" );
 	if( !fp ) return -1;
 	fprintf(fp, "set term qt\n");
 	fprintf(fp, "set key off\n");
 	fprintf(fp, "set logscale\n");
+	fprintf(fp, "set grid xtics ytics mxtics mytics\n");
 	fprintf(fp, "set style textbox opaque noborder\n");
 	fprintf(fp, "set title \"Average Insertion Time for Skiplists with Varying Link Counts\"\n");
 	fprintf(fp, "set xlabel \"Number of Elements in the Skiplist\"\n");
 	fprintf(fp, "set ylabel \"Average Time for One Insertion (ns)\"\n");
 	fprintf(fp, "plot " );
-	for( i = 0; i < max_links; ++i )
+	seperator = "";
+	for( i = 0; i < MAX_LINKS; ++i )
 	{
-		fprintf(fp, "%s\"link_trade_off_insert.dat\" using 1:%u with lines lt -1, \"\" using 1:%u:($0*0+%u) with labels center boxed notitle",
-		        comma, i + 2, i + 2, i + 1);
-		comma = ",\\\n\t";
+		fprintf(fp, "%s\"link_trade_off_insert_%u.dat\" using 1:2 with lines lt -1,"
+		        "\"\" using 1:2:($0*0+%u) with labels center boxed notitle",
+		        seperator, i + 1, i + 1);
+		seperator = ",\\\n\t";
 	}
 	fprintf(fp, "\n");
 	fprintf(fp, "pause -1\n");
 	fclose( fp );
 
-	fp = fopen( "link_trade_off_insert.dat", "w" );
-	if( !fp ) return -1;
-
-	for( i = 1; i < (1 << insertions_log2); i <<= 1 )
+	for( links = MAX_LINKS; links > 0; --links )
 	{
-		unsigned int links_log2;
-		fprintf( fp, "%u", i );
-		for( links_log2 = 1; links_log2 <= max_links; ++links_log2 )
+		skiplist_t *skiplist;
+		char filename[64];
+		unsigned int next;
+
+		sprintf( filename, "link_trade_off_insert_%u.dat", links );
+		fp = fopen( filename, "w" );
+		if( !fp ) return -1;
+
+		skiplist = skiplist_create( links, int_compare, int_fprintf );
+		if( !skiplist ) return -1;
+
+		next = 0;
+		for( i = 0; i < (1 << INSERTIONS_LOG2); ++i )
 		{
-			unsigned int j;
-			skiplist_t *skiplist;
-			struct timespec start, end;
+			/* Sample at powers of 2. */
+			if( (i & (i - 1)) == 0 )
+			{
+				time_stamp( &stamps[next] );
 
-			skiplist = skiplist_create( links_log2, int_compare, int_fprintf );
-			if( !skiplist ) return -1;
+				/* Stop trying if it's taking too long. */
+				if( next && time_diff_ns( &stamps[next - 1], &stamps[next] ) > 300000000LLU )
+					break;
 
-			time_stamp( &start );
-			for( j = 0; j < i; ++j )
-				if( skiplist_insert( skiplist, rand() ) )
-					return -1;
-			time_stamp( &end );
-			fprintf( fp, "\t%f", time_diff_ns( &start, &end ) / (double)i );
-			skiplist_destroy( skiplist );
+				++next;
+			}
+
+			if( skiplist_insert( skiplist, rand() ) )
+				return -1;
 		}
-		fprintf( fp, "\n" );
+		time_stamp( &stamps[next] );
+		++next;
+
+		skiplist_destroy( skiplist );
+
+		for( i = 1; i < next; ++i )
+		{
+			const unsigned int node_count = 1 << (i - 1);
+			fprintf(fp, "%u\t%f\n", 1 << i,
+			        time_diff_ns( &stamps[0], &stamps[i] ) / (double)node_count );
+		}
+
+		fclose( fp );
 	}
 
-	fclose( fp );
-
+#undef MAX_LINKS
+#undef INSERTIONS_LOG2
 	return 0;
 }
-
 
 /** Function pointer for a test case. */
 typedef int (*test_pfn)(void);
