@@ -2,7 +2,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <inttypes.h>
 
 #include "skiplist.h"
 
@@ -55,19 +54,22 @@ static unsigned int skiplist_rng_gen_u32( skiplist_rng_t *rng )
 	return (rng->m_z << 16) + rng->m_w;
 }
 
-skiplist_t *skiplist_create( unsigned int size_estimate_log2, skiplist_compare_pfn compare )
+skiplist_t *skiplist_create( unsigned int size_estimate_log2, skiplist_compare_pfn compare,
+                             skiplist_fprintf_pfn print )
 {
 	skiplist_t *skiplist;
 
 	assert( size_estimate_log2 > 0 );
 	assert( size_estimate_log2 < MAX_LIST_DEPTH );
 	assert( compare );
+	assert( print );
 
 	skiplist = malloc( sizeof( skiplist_t ) + sizeof( link_t ) * (size_estimate_log2 - 1) );
 	if( NULL != skiplist )
 	{
 		skiplist_rng_init( &skiplist->rng );
 		skiplist->compare = compare;
+		skiplist->print = print;
 		skiplist->num_nodes = 0;
 		skiplist->head.levels = size_estimate_log2;
 		memset( skiplist->head.link, 0, sizeof( link_t ) * size_estimate_log2 );
@@ -346,7 +348,9 @@ void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
 			}
 			else
 			{
-				fprintf( stream, "\"%p\\lvalue: %" PRIxPTR "\"", (void *)cur, cur->value );
+				fprintf( stream, "\"%p\\lvalue: ", (void *)cur );
+				skiplist->print( stream, cur->value );
+				fprintf( stream, "\"" );
 			}
 
 			fprintf( stream, "->" );
@@ -357,7 +361,9 @@ void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
 			}
 			else
 			{
-				fprintf( stream, "\"%p\\lvalue: %" PRIxPTR "\"", (void *)cur->link[i].next, cur->link[i].next->value );
+				fprintf( stream, "\"%p\\lvalue: ", (void *)cur->link[i].next );
+				skiplist->print( stream, cur->link[i].next->value );
+				fprintf( stream, "\"" );
 			}
 
 			fprintf( stream, "[ label=\"%u\" ];\n", cur->link[i].width );

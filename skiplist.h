@@ -11,11 +11,14 @@
  *                                 the same time.
  * @param [in] compare             Function for comparing the values that will
  *                                 be used in this skiplist.
+ * @param [in] print               Function for printing the value of the data
+ *                                 in the skiplist.
  *
  * @return If successfully a new skiplist is returned, otherwise NULL.
  */
 skiplist_t *skiplist_create( unsigned int size_estimate_log2,
-                             skiplist_compare_pfn compare );
+                             skiplist_compare_pfn compare,
+                             skiplist_fprintf_pfn print );
 
 /**
  * @brief Destroys a skiplist that was created via skiplist_create().

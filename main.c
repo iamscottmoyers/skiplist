@@ -6,6 +6,9 @@
 
 #include "skiplist.h"
 
+/**
+ * @brief Prints a 'dot' representation of the skiplist to the given filename.
+ */
 static int skiplist_to_file( const char *fname, const skiplist_t *skiplist )
 {
 	FILE *fp = fopen( fname, "w" );
@@ -18,10 +21,19 @@ static int skiplist_to_file( const char *fname, const skiplist_t *skiplist )
 /**
  * @brief Compares two integers.
  */
-static int compare_int( const uintptr_t a, const uintptr_t b )
+static int int_compare( const uintptr_t a, const uintptr_t b )
 {
 	return a - b;
 }
+
+/**
+ * @brief Prints the given integer to the file stream.
+ */
+static void int_fprintf( FILE *stream, const uintptr_t value )
+{
+	fprintf( stream, "%d", (int)value );
+}
+
 
 /**
  * @brief Sanity test of some key skiplist APIs using integers.
@@ -32,7 +44,7 @@ static int simple( void )
 	node_t *iter;
 	skiplist_t *skiplist;
 
-	skiplist = skiplist_create( 5, compare_int );
+	skiplist = skiplist_create( 5, int_compare, int_fprintf );
 	if( !skiplist )
 		return -1;
 
@@ -88,7 +100,10 @@ typedef struct coord_t
 	unsigned int y; /**< y coordinate. */
 } coord_t;
 
-static int compare_coord( const uintptr_t a, const uintptr_t b )
+/**
+ * @brief Compares two coordinates.
+ */
+static int coord_compare( const uintptr_t a, const uintptr_t b )
 {
 	coord_t *ca = (coord_t *)a;
 	coord_t *cb = (coord_t *)b;
@@ -97,6 +112,15 @@ static int compare_coord( const uintptr_t a, const uintptr_t b )
 	if( ca->y < cb->y ) return -1;
 	if( ca->y > cb->y ) return 1;
 	return 0;
+}
+
+/**
+ * @brief Prints the given coordinate to the file stream.
+ */
+static void coord_fprintf( FILE *stream, const uintptr_t value )
+{
+	coord_t *coord = (coord_t *) value;
+	fprintf( stream, "{x: %u, y: %u}", coord->x, coord->y );
 }
 
 /**
@@ -140,9 +164,9 @@ static int pointers( void )
 
 	unsigned int i;
 	node_t *iter;
-	coord_t prev;
+	coord_t tmp;
 
-	skiplist = skiplist_create( 8, compare_coord );
+	skiplist = skiplist_create( 8, coord_compare, coord_fprintf );
 	if( !skiplist ) return -1;
 
 	for( i = 0; i < sizeof(coords) / sizeof(coords[0]); ++i )
@@ -151,21 +175,34 @@ static int pointers( void )
 			return -1;
 	}
 
+	/* Output skiplist for debugging purposes. */
 	if( skiplist_to_file( "pointers.dot", skiplist ) )
 		return -1;
 
-	prev.x = 0;
-	prev.y = 0;
-	for( iter = skiplist_begin( skiplist );
-	     iter != skiplist_end();
-	     iter = skiplist_next( iter ) )
+	/* Confirm skiplist is in the correct order. */
+	tmp.x = 0;
+	tmp.y = 0;
+	for( iter = skiplist_begin( skiplist ); iter != skiplist_end(); iter = skiplist_next( iter ) )
 	{
 		coord_t *cur = (coord_t *)skiplist_node_value( iter );
-		if( cur->x < prev.x ) return -1;
-		if( cur->x == prev.x && cur->y < prev.y ) return -1;
-		prev = *cur;
+		if( cur->x < tmp.x ) return -1;
+		if( cur->x == tmp.x && cur->y < tmp.y ) return -1;
+		tmp = *cur;
 	}
 
+	/* Confirm the skiplist contains what we expect. */
+	for( i = 0; i < sizeof(coords) / sizeof(coords[0]); ++i )
+	{
+		if( !skiplist_contains( skiplist, (uintptr_t) &coords[i] ) )
+			return -1;
+	}
+
+	/* If we use a different pointer to point to the same values the skiplist should skill contain it. */
+	tmp = coords[0];
+	if( !skiplist_contains( skiplist, (uintptr_t) &tmp ) )
+		return -1;
+
+	/* Free resources. */
 	skiplist_destroy( skiplist );
 
 	return 0;
