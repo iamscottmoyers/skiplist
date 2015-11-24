@@ -332,8 +332,8 @@ void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
 	assert( stream );
 	assert( skiplist );
 
-	printf("digraph {\n");
-	printf("rankdir=\"LR\"\n");
+	fprintf( stream, "digraph {\n" );
+	fprintf( stream, "rankdir=\"LR\"\n" );
 	for( i = skiplist->head.levels; i-- != 0; )
 	{
 		for( cur = &skiplist->head; NULL != cur; cur = cur->link[i].next )
@@ -342,29 +342,29 @@ void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
 
 			if( cur == &skiplist->head )
 			{
-				printf( "\"HEAD\\lnum_nodes: %u\"", skiplist->num_nodes );
+				fprintf( stream, "\"HEAD\\lnum_nodes: %u\"", skiplist->num_nodes );
 			}
 			else
 			{
-				printf( "\"%p\\lvalue: %" PRIxPTR "\"", (void *)cur, cur->value );
+				fprintf( stream, "\"%p\\lvalue: %" PRIxPTR "\"", (void *)cur, cur->value );
 			}
 
-			printf( "->" );
+			fprintf( stream, "->" );
 
 			if( NULL == cur->link[i].next )
 			{
-				printf( "TAIL" );
+				fprintf( stream, "TAIL" );
 			}
 			else
 			{
-				printf( "\"%p\\lvalue: %" PRIxPTR "\"", (void *)cur->link[i].next, cur->link[i].next->value );
+				fprintf( stream, "\"%p\\lvalue: %" PRIxPTR "\"", (void *)cur->link[i].next, cur->link[i].next->value );
 			}
 
-			printf( "[ label=\"%u\" ];\n", cur->link[i].width );
+			fprintf( stream, "[ label=\"%u\" ];\n", cur->link[i].width );
 		}
 	}
 
-	printf("}\n");
+	fprintf( stream, "}\n" );
 }
 
 void skiplist_printf( const skiplist_t *skiplist )
