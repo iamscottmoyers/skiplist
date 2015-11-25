@@ -13,7 +13,7 @@ Here's the complexity of the operations this data structure provides, where N is
 number of elements in the list:
 
 Operation | Complexity
-----------------------
+----------|-----------
 Insert    | O(log(N))
 Delete    | O(log(N))
 Index     | O(log(N))
