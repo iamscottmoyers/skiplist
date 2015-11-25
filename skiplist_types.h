@@ -1,11 +1,33 @@
 #ifndef SKIPLIST_TYPES_H
 #define SKIPLIST_TYPES_H
 
-/* The maximum number of next pointers per node in this skip list
-   implementation is 32, due to the random number generator only
-   generating 32 bit numbers. This value allows for efficient
-   O(log(n)) skiplist insertion where n is up to 2^32 nodes. */
+/**
+ * The maximum number of next pointers per node in this skip list
+ * implementation is 32, due to the random number generator only
+ * generating 32 bit numbers. This value allows for efficient
+ * O(log(n)) skiplist insertion where n is up to 2^32 nodes.
+ *
+ * Always picking the maximum number of links will increase memory
+ * consumption and has a high constant overhead due to the number
+ * of links that need to be maintained. So where possible pick a
+ * smaller number.
+ */
 #define SKIPLIST_MAX_LINKS (32)
+
+/**
+ * @brief Skiplist property bitset.
+ */
+typedef unsigned int skiplist_properties_t;
+
+/**
+ * @brief Only insert values if they're unique. i.e. Behave like a set.
+ */
+#define SKIPLIST_PROPERTY_UNIQUE (1 << 0)
+
+/**
+ * @brief No properties for the skiplist, by default duplicate entries are allowed.
+ */
+#define SKIPLIST_PROPERTY_NONE (0)
 
 /**
  * @brief Represents a link between two nodes in a skiplist.
@@ -80,6 +102,9 @@ typedef struct skiplist_t
 	    ensuring mutual exclusion before calling into this module.
 	 */
 	skiplist_rng_t rng;
+
+	/** Properties for this skiplist, i.e. Unique entries or not. */
+	skiplist_properties_t properties;
 
 	/** Function pointer for comparing nodes. */
 	skiplist_compare_pfn compare;

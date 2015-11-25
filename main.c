@@ -76,7 +76,7 @@ static int simple( void )
 	node_t *iter;
 	skiplist_t *skiplist;
 
-	skiplist = skiplist_create( 5, int_compare, int_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
 	if( !skiplist )
 		return -1;
 
@@ -194,7 +194,7 @@ static int pointers( void )
 	node_t *iter;
 	coord_t tmp;
 
-	skiplist = skiplist_create( 8, coord_compare, coord_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 8, coord_compare, coord_fprintf );
 	if( !skiplist ) return -1;
 
 	for( i = 0; i < sizeof(coords) / sizeof(coords[0]); ++i )
@@ -228,6 +228,84 @@ static int pointers( void )
 
 	/* Free resources. */
 	skiplist_destroy( skiplist );
+
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms that duplicate entries are allowed when the skiplist is not a set.
+ */
+static int duplicate_entries_allowed( void )
+{
+	unsigned int i;
+	node_t *iter;
+	skiplist_t *skiplist;
+
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	if( !skiplist )
+		return -1;
+
+	for( i = 0; i < 2; ++i )
+	{
+		unsigned int j;
+		for( j = 0; j < 5; ++j )
+		{
+			if( skiplist_insert( skiplist, j ) )
+				return -1;
+			if( skiplist_size( skiplist ) != (i * 5 + j + 1) )
+				return -1;
+		}
+	}
+
+	for( i = 0; i < 5; ++i )
+		if( !skiplist_contains( skiplist, i ) )
+			return -1;
+
+	for( i = 0, iter = skiplist_begin( skiplist ); iter != skiplist_end(); iter = skiplist_next( iter ), ++i )
+		if( skiplist_node_value( iter ) != (i / 2) )
+			return -1;
+
+	if( skiplist_to_file( "duplicate_entries_allowed.dot", skiplist ) )
+		return -1;
+
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms that duplicate entries are disallowed when the skiplist is a set.
+ */
+static int duplicate_entries_disallowed( void )
+{
+	unsigned int i;
+	node_t *iter;
+	skiplist_t *skiplist;
+
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_UNIQUE, 5, int_compare, int_fprintf );
+	if( !skiplist )
+		return -1;
+
+	for( i = 0; i < 2; ++i )
+	{
+		unsigned int j;
+		for( j = 0; j < 5; ++j )
+		{
+			if( skiplist_insert( skiplist, j ) )
+				return -1;
+			if( skiplist_size( skiplist ) != (i ? 5 : j+1) )
+				return -1;
+		}
+	}
+
+	for( i = 0; i < 5; ++i )
+		if( !skiplist_contains( skiplist, i ) )
+			return -1;
+
+	for( i = 0, iter = skiplist_begin( skiplist ); iter != skiplist_end(); iter = skiplist_next( iter ), ++i )
+		if( skiplist_node_value( iter ) != i )
+			return -1;
+
+	if( skiplist_to_file( "duplicate_entries_disallowed.dot", skiplist ) )
+		return -1;
 
 	return 0;
 }
@@ -280,7 +358,7 @@ static int link_trade_off_lookup( void )
 			skiplist_t *skiplist;
 			struct timespec start, end;
 
-			skiplist = skiplist_create( links, int_compare, int_fprintf );
+			skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, links, int_compare, int_fprintf );
 			if( !skiplist ) return -1;
 
 			for( j = 0; j < i; ++j )
@@ -352,7 +430,7 @@ static int link_trade_off_insert( void )
 		fp = fopen( filename, "w" );
 		if( !fp ) return -1;
 
-		skiplist = skiplist_create( links, int_compare, int_fprintf );
+		skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, links, int_compare, int_fprintf );
 		if( !skiplist ) return -1;
 
 		next = 0;
@@ -418,6 +496,8 @@ int main( int argc, char *argv[] )
 	{
 		TEST_CASE( simple ),
 		TEST_CASE( pointers ),
+		TEST_CASE( duplicate_entries_allowed ),
+		TEST_CASE( duplicate_entries_disallowed ),
 		TEST_CASE( link_trade_off_lookup ),
 		TEST_CASE( link_trade_off_insert )
 	};

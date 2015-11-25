@@ -54,8 +54,8 @@ static unsigned int skiplist_rng_gen_u32( skiplist_rng_t *rng )
 	return (rng->m_z << 16) + rng->m_w;
 }
 
-skiplist_t *skiplist_create( unsigned int size_estimate_log2, skiplist_compare_pfn compare,
-                             skiplist_fprintf_pfn print )
+skiplist_t *skiplist_create( skiplist_properties_t properties, unsigned int size_estimate_log2,
+                             skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
 {
 	skiplist_t *skiplist;
 
@@ -63,11 +63,13 @@ skiplist_t *skiplist_create( unsigned int size_estimate_log2, skiplist_compare_p
 	assert( size_estimate_log2 <= SKIPLIST_MAX_LINKS );
 	assert( compare );
 	assert( print );
+	assert( SKIPLIST_PROPERTY_NONE == properties || SKIPLIST_PROPERTY_UNIQUE == properties );
 
 	skiplist = malloc( sizeof( skiplist_t ) + sizeof( link_t ) * (size_estimate_log2 - 1) );
 	if( NULL != skiplist )
 	{
 		skiplist_rng_init( &skiplist->rng );
+		skiplist->properties = properties;
 		skiplist->compare = compare;
 		skiplist->print = print;
 		skiplist->num_nodes = 0;
@@ -195,8 +197,9 @@ int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 
 	skiplist_find_insert_path( skiplist, value, update, distances );
 
-	/* Only insert the new value if the set doesn't already contain it. */
-	if( update[0] == &skiplist->head || skiplist->compare( update[0]->value, value ) )
+	/* Insert the new value, unless this is a skiplist set that already contains it. */
+	if( SKIPLIST_PROPERTY_NONE == skiplist->properties ||
+	    update[0] == &skiplist->head || skiplist->compare( update[0]->value, value ) )
 	{
 		unsigned int node_levels;
 		node_t *new_node;

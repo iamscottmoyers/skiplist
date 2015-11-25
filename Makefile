@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O2 -Wall -pedantic -Wextra
+CFLAGS=-O2 -g -Wall -pedantic -Wextra
 
 default: skiplist
 

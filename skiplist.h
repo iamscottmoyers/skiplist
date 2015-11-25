@@ -6,6 +6,8 @@
 /**
  * @brief Creates a new skiplist.
  *
+ * @param [in] properties          The properties for this skiplist. i.e.
+ *                                 Unique entries or not.
  * @param [in] size_estimate_log2  An estimate of log2() of the maximum number
  *                                 of elements that will appear in the list at
  *                                 the same time.
@@ -16,7 +18,8 @@
  *
  * @return If successfully a new skiplist is returned, otherwise NULL.
  */
-skiplist_t *skiplist_create( unsigned int size_estimate_log2,
+skiplist_t *skiplist_create( skiplist_properties_t properties,
+                             unsigned int size_estimate_log2,
                              skiplist_compare_pfn compare,
                              skiplist_fprintf_pfn print );
 
