@@ -479,6 +479,7 @@ typedef struct test_case_t
 
 int main( int argc, char *argv[] )
 {
+	int err = EXIT_SUCCESS;
 	unsigned int i;
 	const test_case_t tests[] =
 	{
@@ -500,7 +501,10 @@ int main( int argc, char *argv[] )
 		fflush( stdout );
 		result = tests[i].pfn();
 		printf( result ? "Fail\n" : "Pass\n" );
+
+		/* If any tests fail don't return successfully from the executable. */
+		if( result ) err = EXIT_FAILURE;
 	}
 
-	return 0;
+	return err;
 }
