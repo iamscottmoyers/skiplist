@@ -381,6 +381,25 @@ void skiplist_printf( const skiplist_t *skiplist )
 	skiplist_fprintf( stdout, skiplist );
 }
 
+int skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist )
+{
+	int err = -1;
+	FILE *fp;
+
+	assert( filename );
+	assert( skiplist );
+
+	fp = fopen( filename, "w" );
+	if( NULL != fp )
+	{
+		skiplist_fprintf( fp, skiplist );
+		fclose( fp );
+		err = 0;
+	}
+
+	return err;
+}
+
 uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index )
 {
 	unsigned int i;

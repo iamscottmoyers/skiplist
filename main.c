@@ -40,18 +40,6 @@ static unsigned long long time_diff_ns( const struct timespec *start, const stru
 }
 
 /**
- * @brief Prints a 'dot' representation of the skiplist to the given filename.
- */
-static int skiplist_to_file( const char *fname, const skiplist_t *skiplist )
-{
-	FILE *fp = fopen( fname, "w" );
-	if( !fp ) return -1;
-	skiplist_fprintf( fp, skiplist );
-	fclose( fp );
-	return 0;
-}
-
-/**
  * @brief Compares two integers.
  */
 static int int_compare( const uintptr_t a, const uintptr_t b )
@@ -113,7 +101,7 @@ static int simple( void )
 	for( i = 0; i < skiplist_size( skiplist ); ++i )
 		skiplist_at_index( skiplist, i );
 
-	if( skiplist_to_file( "simple.dot", skiplist ) )
+	if( skiplist_fprintf_filename( "simple.dot", skiplist ) )
 		return -1;
 
 	skiplist_destroy( skiplist );
@@ -202,7 +190,7 @@ static int pointers( void )
 			return -1;
 
 	/* Output skiplist for debugging purposes. */
-	if( skiplist_to_file( "pointers.dot", skiplist ) )
+	if( skiplist_fprintf_filename( "pointers.dot", skiplist ) )
 		return -1;
 
 	/* Confirm skiplist is in the correct order. */
@@ -265,7 +253,7 @@ static int duplicate_entries_allowed( void )
 		if( skiplist_node_value( iter ) != (i / 2) )
 			return -1;
 
-	if( skiplist_to_file( "duplicate_entries_allowed.dot", skiplist ) )
+	if( skiplist_fprintf_filename( "duplicate_entries_allowed.dot", skiplist ) )
 		return -1;
 
 	return 0;
@@ -304,7 +292,7 @@ static int duplicate_entries_disallowed( void )
 		if( skiplist_node_value( iter ) != i )
 			return -1;
 
-	if( skiplist_to_file( "duplicate_entries_disallowed.dot", skiplist ) )
+	if( skiplist_fprintf_filename( "duplicate_entries_disallowed.dot", skiplist ) )
 		return -1;
 
 	return 0;

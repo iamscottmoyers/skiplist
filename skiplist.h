@@ -71,12 +71,23 @@ int skiplist_remove( skiplist_t *skiplist, uintptr_t value );
 void skiplist_printf( const skiplist_t *skiplist );
 
 /**
- * @brief Prints the skiplist in DOT format to the provided file stream
+ * @brief Prints the skiplist in DOT format to the provided file stream.
  *
- * @param [in] skiplist  The skiplist to print.
  * @param [in] stream    The filestream to print to.
+ * @param [in] skiplist  The skiplist to print.
  */
 void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist );
+
+/**
+ * @brief Prints the skiplist in DOT format to a file called @p filename.
+ *
+ * @param [in] filename  The name of the file to print to.
+ * @param [in] skiplist  The skiplist to print.
+ *
+ * @retval 0   If the skiplist was successfully printed to @p filename.
+ * @retval -1  If writing to the given filename failed.
+ */
+int skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist );
 
 /**
  * @brief Returns the value of the node at the given index.
