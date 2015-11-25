@@ -4,10 +4,10 @@ CFLAGS=-O2 -g -Wall -pedantic -Wextra
 default: skiplist
 
 src/skiplist.o: src/skiplist.c src/skiplist.h src/skiplist_inline.h src/skiplist_types.h
-	gcc -c $(CFLAGS) src/skiplist.c -o src/skiplist.o
+	$(CC) -c $(CFLAGS) src/skiplist.c -o src/skiplist.o
 
 skiplist: src/skiplist.o src/main.c
-	gcc $(CFLAGS) src/main.c src/skiplist.o -o skiplist
+	$(CC) $(CFLAGS) src/main.c src/skiplist.o -o skiplist
 
 test: skiplist
 	./skiplist
