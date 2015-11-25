@@ -1,7 +1,7 @@
 # skiplist
 
 This is an implementation of a Skiplist Library written in C99, although there's
-very few uses of the C89 features in it so should be easy to modify for C89.
+very few uses of the C99 features in it so should be easy to modify for C89.
 
 See https://en.wikipedia.org/wiki/Skip_list for an overview of the skiplist datastructure.
 
@@ -11,9 +11,12 @@ This implementation has a couple of features.
 
 Here's the complexity of the operations this data structure provides, where N is the
 number of elements in the list:
-|Insert|O(log(N))|
-|Delete|O(log(N))|
-|Index|O(log(N))|
+
+Operation | Complexity
+----------------------
+Insert    | O(log(N))
+Delete    | O(log(N))
+Index     | O(log(N))
 
 Each node in a skiplist contains a number of next pointers, the maximum number of pointers
 that this skiplist implementation will use for a node is given by SKIPLIST_MAX_LINKS which
