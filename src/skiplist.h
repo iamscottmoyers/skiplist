@@ -1,6 +1,8 @@
 #ifndef SKIPLIST_H
 #define SKIPLIST_H
 
+#include <stdint.h>
+
 #include "skiplist_types.h"
 
 /**
