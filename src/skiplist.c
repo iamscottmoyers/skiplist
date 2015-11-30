@@ -26,7 +26,7 @@ static void skiplist_rng_init( skiplist_rng_t *rng )
 {
 	assert( rng );
 
-	/* Arbitrary initialization values the random number generator.
+	/* Arbitrary initialization values for the random number generator.
 	   These should never be set to 0. */
 	rng->m_w = 0xcafef00d;
 	rng->m_z = 0xabcd1234;
