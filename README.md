@@ -1,7 +1,7 @@
 # skiplist
 
-This is an implementation of the skiplist datastructure written in C99, although there's
-very few uses of the C99 features in it so should be easy to modify for C89.
+This is an implementation of the skiplist datastructure written in C99, although there are
+very few uses of C99 features so it should be easy to modify for C89.
 
 See https://en.wikipedia.org/wiki/Skip_list for an overview of the skiplist datastructure.
 
