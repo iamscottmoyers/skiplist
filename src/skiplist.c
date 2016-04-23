@@ -54,25 +54,25 @@ static unsigned int skiplist_rng_gen_u32( skiplist_rng_t *rng )
 	return (rng->m_z << 16) + rng->m_w;
 }
 
-static node_t *skiplist_node_allocate( unsigned int levels )
+static skiplist_node_t *skiplist_node_allocate( unsigned int levels )
 {
-	node_t *node;
+	skiplist_node_t *node;
 
 	/* Allocate a node with space at the end for each level link.
-	   levels - 1 is used as one link is included in the size of node_t. */
-	node = malloc( sizeof( node_t ) + sizeof( link_t ) * (levels - 1) );
+	   levels - 1 is used as one link is included in the size of skiplist_node_t. */
+	node = malloc( sizeof( skiplist_node_t ) + sizeof( skiplist_link_t ) * (levels - 1) );
 
 	return node;
 }
 
-static void skiplist_node_deallocate( node_t *node )
+static void skiplist_node_deallocate( skiplist_node_t *node )
 {
 	assert( node );
 
 	free( node );
 }
 
-static void skiplist_node_init( node_t *node, unsigned int levels, uintptr_t value )
+static void skiplist_node_init( skiplist_node_t *node, unsigned int levels, uintptr_t value )
 {
 	assert( node );
 
@@ -80,9 +80,9 @@ static void skiplist_node_init( node_t *node, unsigned int levels, uintptr_t val
 	node->value = value;
 }
 
-static node_t *skiplist_node_create( unsigned int levels, uintptr_t value )
+static skiplist_node_t *skiplist_node_create( unsigned int levels, uintptr_t value )
 {
-	node_t *node;
+	skiplist_node_t *node;
 
 	node = skiplist_node_allocate( levels );
 
@@ -99,7 +99,7 @@ static skiplist_t *skiplist_allocate( unsigned int size_estimate_log2 )
 	skiplist_t *skiplist;
 
 	/* number of links - 1 to take into account the 1 sized array at the end. */
-	skiplist = malloc( sizeof( skiplist_t ) + sizeof( link_t ) * (size_estimate_log2 - 1) );
+	skiplist = malloc( sizeof( skiplist_t ) + sizeof( skiplist_link_t ) * (size_estimate_log2 - 1) );
 
 	return skiplist;
 }
@@ -123,7 +123,7 @@ void skiplist_init( skiplist_t *skiplist,
 	skiplist->print = print;
 	skiplist->num_nodes = 0;
 	skiplist->head.levels = size_estimate_log2;
-	memset( skiplist->head.link, 0, sizeof( link_t ) * size_estimate_log2 );
+	memset( skiplist->head.link, 0, sizeof( skiplist_link_t ) * size_estimate_log2 );
 }
 
 skiplist_t *skiplist_create( skiplist_properties_t properties, unsigned int size_estimate_log2,
@@ -150,8 +150,8 @@ void skiplist_destroy( skiplist_t *skiplist )
 {
 	if( NULL != skiplist )
 	{
-		node_t *cur;
-		node_t *next;
+		skiplist_node_t *cur;
+		skiplist_node_t *next;
 
 		for( cur = skiplist->head.link[0].next; NULL != cur; cur = next )
 		{
@@ -166,7 +166,7 @@ void skiplist_destroy( skiplist_t *skiplist )
 unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value )
 {
 	unsigned int i;
-	const node_t *cur;
+	const skiplist_node_t *cur;
 
 	cur = &skiplist->head;
 	for( i = cur->levels; i-- != 0; )
@@ -209,10 +209,10 @@ static unsigned int skiplist_compute_node_level( skiplist_t *skiplist )
 }
 
 static void skiplist_find_insert_path( skiplist_t *skiplist, uintptr_t value,
-                                       node_t *path[], unsigned int distances[] )
+                                       skiplist_node_t *path[], unsigned int distances[] )
 {
 	unsigned int i;
-	node_t *cur;
+	skiplist_node_t *cur;
 
 	/* 'value' will be positioned before the first node that is greater than 'value'.
 	   Start searching from the highest level, this level spans the most number of
@@ -255,7 +255,7 @@ static void skiplist_find_insert_path( skiplist_t *skiplist, uintptr_t value,
 
 int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 {
-	node_t *update[SKIPLIST_MAX_LINKS];
+	skiplist_node_t *update[SKIPLIST_MAX_LINKS];
 	unsigned int distances[SKIPLIST_MAX_LINKS];
 	int err = 0;
 
@@ -268,7 +268,7 @@ int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 	    update[0] == &skiplist->head || skiplist->compare( update[0]->value, value ) )
 	{
 		unsigned int node_levels;
-		node_t *new_node;
+		skiplist_node_t *new_node;
 
 		node_levels = skiplist_compute_node_level( skiplist );
 		new_node = skiplist_node_create( node_levels, value );
@@ -290,8 +290,8 @@ int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 			/* Insert the node into each level of the skiplist. */
 			for( i = node_levels; i-- != 0; )
 			{
-				link_t *update_link = &update[i]->link[i];
-				link_t *new_link = &new_node->link[i];
+				skiplist_link_t *update_link = &update[i]->link[i];
+				skiplist_link_t *new_link = &new_node->link[i];
 
 				/* Update the link widths using the distance we are from the previous level. */
 				new_link->width = 1 + update_link->width - distances[i];
@@ -310,10 +310,10 @@ int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 	return err;
 }
 
-static void skiplist_find_remove_path( skiplist_t *skiplist, uintptr_t value, node_t *path[] )
+static void skiplist_find_remove_path( skiplist_t *skiplist, uintptr_t value, skiplist_node_t *path[] )
 {
 	unsigned int i;
-	node_t *cur;
+	skiplist_node_t *cur;
 
 	/* Find the path to a node that contains 'value'. */
 	cur = &skiplist->head;
@@ -346,8 +346,8 @@ static void skiplist_find_remove_path( skiplist_t *skiplist, uintptr_t value, no
 
 int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
 {
-	node_t *update[SKIPLIST_MAX_LINKS];
-	node_t *remove;
+	skiplist_node_t *update[SKIPLIST_MAX_LINKS];
+	skiplist_node_t *remove;
 	int err = 0;
 
 	assert( skiplist );
@@ -366,8 +366,8 @@ int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
 
 		for( i = skiplist->head.levels; i-- != 0; )
 		{
-			link_t *update_link = &update[i]->link[i];
-			link_t *remove_link = &remove->link[i];
+			skiplist_link_t *update_link = &update[i]->link[i];
+			skiplist_link_t *remove_link = &remove->link[i];
 
 			/* This level will either connect to the node after the removed node or span over it.
 			   If it spans over the removed node just decrement the width of the link, if it
@@ -392,7 +392,7 @@ int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
 
 void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
 {
-	const node_t *cur;
+	const skiplist_node_t *cur;
 	unsigned int i;
 
 	assert( stream );
@@ -465,7 +465,7 @@ uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index )
 {
 	unsigned int i;
 	unsigned int remaining;
-	const node_t *cur;
+	const skiplist_node_t *cur;
 
 	assert( index < skiplist->num_nodes );
 

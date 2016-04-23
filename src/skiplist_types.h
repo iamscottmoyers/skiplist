@@ -32,20 +32,20 @@ typedef unsigned int skiplist_properties_t;
 /**
  * @brief Represents a link between two nodes in a skiplist.
  */
-typedef struct link_t
+typedef struct skiplist_link_t
 {
 	/** The width of the link. i.e. if we follow this link,
 	    how many nodes have we advanced. */
 	unsigned int width;
 
 	/** A pointer to the next node in this link's level. */
-	struct node_t *next;
-} link_t;
+	struct skiplist_node_t *next;
+} skiplist_link_t;
 
 /**
  * @brief Represents a single node in a skiplist.
  */
-typedef struct node_t
+typedef struct skiplist_node_t
 {
 	/** The value for this node. */
 	uintptr_t value;
@@ -54,8 +54,8 @@ typedef struct node_t
 	unsigned int levels;
 
 	/** An array of links, one entry for each level in the node. */
-	link_t link[1];
-} node_t;
+	skiplist_link_t link[1];
+} skiplist_node_t;
 
 /**
  * @brief Holds the state for the skiplist's random number generator.
@@ -116,7 +116,7 @@ typedef struct skiplist_t
 	unsigned int num_nodes;
 
 	/** The head node. */
-	node_t head;
+	skiplist_node_t head;
 } skiplist_t;
 
 #endif

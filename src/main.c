@@ -61,7 +61,7 @@ static void int_fprintf( FILE *stream, const uintptr_t value )
 static int simple( void )
 {
 	unsigned int i;
-	node_t *iter;
+	skiplist_node_t *iter;
 	skiplist_t *skiplist;
 
 	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
@@ -179,7 +179,7 @@ static int pointers( void )
 	};
 
 	unsigned int i;
-	node_t *iter;
+	skiplist_node_t *iter;
 	coord_t tmp;
 
 	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 8, coord_compare, coord_fprintf );
@@ -226,7 +226,7 @@ static int pointers( void )
 static int duplicate_entries_allowed( void )
 {
 	unsigned int i;
-	node_t *iter;
+	skiplist_node_t *iter;
 	skiplist_t *skiplist;
 
 	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
@@ -265,7 +265,7 @@ static int duplicate_entries_allowed( void )
 static int duplicate_entries_disallowed( void )
 {
 	unsigned int i;
-	node_t *iter;
+	skiplist_node_t *iter;
 	skiplist_t *skiplist;
 
 	skiplist = skiplist_create( SKIPLIST_PROPERTY_UNIQUE, 5, int_compare, int_fprintf );

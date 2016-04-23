@@ -3,24 +3,24 @@
 
 #include "skiplist_types.h"
 
-static inline node_t *skiplist_begin( skiplist_t *skiplist )
+static inline skiplist_node_t *skiplist_begin( skiplist_t *skiplist )
 {
 	assert( skiplist );
 	return skiplist->head.link[0].next;
 }
 
-static inline node_t *skiplist_end( void )
+static inline skiplist_node_t *skiplist_end( void )
 {
 	return NULL;
 }
 
-static inline node_t *skiplist_next( const node_t *cur )
+static inline skiplist_node_t *skiplist_next( const skiplist_node_t *cur )
 {
 	assert( cur );
 	return cur->link[0].next;
 }
 
-static inline uintptr_t skiplist_node_value( const node_t *node )
+static inline uintptr_t skiplist_node_value( const skiplist_node_t *node )
 {
 	assert( node );
 	return node->value;
