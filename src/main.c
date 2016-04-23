@@ -339,6 +339,94 @@ static int abuse_skiplist_create( void )
 }
 
 /**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_destroy.
+ */
+static int abuse_skiplist_destroy( void )
+{
+	/* Can't do much but check NULL doesn't cause a crash. */
+	skiplist_destroy( NULL );
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_contains.
+ */
+static int abuse_skiplist_contains( void )
+{
+	if( skiplist_contains( NULL, 0 ) )
+		return -1;
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_insert.
+ */
+static int abuse_skiplist_insert( void )
+{
+	if( !skiplist_insert( NULL, 0 ) )
+		return -1;
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_remove.
+ */
+static int abuse_skiplist_remove( void )
+{
+	if( !skiplist_remove( NULL, 0 ) )
+		return -1;
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_printf.
+ */
+static int abuse_skiplist_printf( void )
+{
+	skiplist_printf( NULL );
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_fprintf.
+ */
+static int abuse_skiplist_fprintf( void )
+{
+	skiplist_t *skiplist;
+
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	if( !skiplist )
+		return -1;
+
+	skiplist_fprintf( NULL, skiplist );
+	skiplist_fprintf( stdout, NULL );
+
+	skiplist_destroy( skiplist );
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_fprintf_filename.
+ */
+static int abuse_skiplist_fprintf_filename( void )
+{
+	skiplist_t *skiplist;
+
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	if( !skiplist )
+		return -1;
+
+	if( !skiplist_fprintf_filename( NULL, skiplist ) )
+		return -1;
+
+	if( !skiplist_fprintf_filename( "valid_filname.txt", NULL ) )
+		return -1;
+
+	skiplist_destroy( skiplist );
+	return 0;
+}
+
+/**
  * @brief TEST_CASE - Measures lookup trade off between number of elements in the list and number of links per node.
  */
 static int link_trade_off_lookup( void )
@@ -528,6 +616,13 @@ int main( int argc, char *argv[] )
 		TEST_CASE( duplicate_entries_allowed ),
 		TEST_CASE( duplicate_entries_disallowed ),
 		TEST_CASE( abuse_skiplist_create ),
+		TEST_CASE( abuse_skiplist_destroy ),
+		TEST_CASE( abuse_skiplist_contains ),
+		TEST_CASE( abuse_skiplist_insert ),
+		TEST_CASE( abuse_skiplist_remove ),
+		TEST_CASE( abuse_skiplist_printf ),
+		TEST_CASE( abuse_skiplist_fprintf ),
+		TEST_CASE( abuse_skiplist_fprintf_filename ),
 		TEST_CASE( link_trade_off_lookup ),
 		TEST_CASE( link_trade_off_insert )
 	};

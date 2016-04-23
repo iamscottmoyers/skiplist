@@ -39,7 +39,7 @@ void skiplist_destroy( skiplist_t *skiplist );
  * @param [in] value     The value to search for.
  *
  * @retval 1             If the value exists in the skiplist set.
- * @retval 0             If the value doesn't exist in the skiplist set.
+ * @retval 0             If the value doesn't exist in the skiplist set, or input values were invalid.
  */
 unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value );
 
@@ -50,7 +50,7 @@ unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value );
  * @param [in] value     The value to insert into @p skiplist.
  *
  * @retval 0  if successful.
- * @retval -1 if a memory allocation failed.
+ * @retval -1 if a memory allocation failed, or input values were invalid.
  */
 int skiplist_insert( skiplist_t *skiplist, uintptr_t value );
 
@@ -61,7 +61,7 @@ int skiplist_insert( skiplist_t *skiplist, uintptr_t value );
  * @param [in] value     The value to remove from @p skiplist.
  *
  * @retval 0  if the value was successfully removed.
- * @retval -1 if the value did not exist in the skiplist.
+ * @retval -1 if the value did not exist in the skiplist, or input values were invalid.
  */
 int skiplist_remove( skiplist_t *skiplist, uintptr_t value );
 
@@ -87,7 +87,7 @@ void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist );
  * @param [in] skiplist  The skiplist to print.
  *
  * @retval 0   If the skiplist was successfully printed to @p filename.
- * @retval -1  If writing to the given filename failed.
+ * @retval -1  If writing to the given filename failed, or input values were invalid.
  */
 int skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist );
 

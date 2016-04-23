@@ -185,24 +185,51 @@ skiplist_t *skiplist_create( skiplist_properties_t properties, unsigned int size
 	return skiplist;
 }
 
+static int skiplist_destroy_is_clean( skiplist_t *skiplist )
+{
+	if( NULL == skiplist )
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+static void skiplist_destroy_clean( skiplist_t *skiplist )
+{
+	skiplist_node_t *cur;
+	skiplist_node_t *next;
+
+	for( cur = skiplist->head.link[0].next; NULL != cur; cur = next )
+	{
+		next = cur->link[0].next;
+		skiplist_node_deallocate( cur );
+	}
+
+	skiplist_deallocate( skiplist );
+}
+
 void skiplist_destroy( skiplist_t *skiplist )
 {
-	if( NULL != skiplist )
+	if( skiplist_destroy_is_clean( skiplist ) )
 	{
-		skiplist_node_t *cur;
-		skiplist_node_t *next;
-
-		for( cur = skiplist->head.link[0].next; NULL != cur; cur = next )
-		{
-			next = cur->link[0].next;
-			skiplist_node_deallocate( cur );
-		}
-
-		skiplist_deallocate( skiplist );
+		skiplist_destroy_clean( skiplist );
 	}
 }
 
-unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value )
+static int skiplist_contains_is_clean( const skiplist_t *skiplist, uintptr_t value )
+{
+	if( NULL == skiplist )
+	{
+		return 0;
+	}
+
+	(void) value;
+
+	return 1;
+}
+
+static unsigned int skiplist_contains_clean( const skiplist_t *skiplist, uintptr_t value )
 {
 	unsigned int i;
 	const skiplist_node_t *cur;
@@ -225,6 +252,18 @@ unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value )
 	}
 
 	return 0;
+}
+
+unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value )
+{
+	unsigned int contains = 0;
+
+	if( skiplist_contains_is_clean( skiplist, value ) )
+	{
+		contains = skiplist_contains_clean( skiplist, value );
+	}
+
+	return contains;
 }
 
 static unsigned int skiplist_compute_node_level( skiplist_t *skiplist )
@@ -292,13 +331,23 @@ static void skiplist_find_insert_path( skiplist_t *skiplist, uintptr_t value,
 	}
 }
 
-int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
+static int skiplist_insert_is_clean( skiplist_t *skiplist, uintptr_t value )
+{
+	if( NULL == skiplist )
+	{
+		return 0;
+	}
+
+	(void) value;
+
+	return 1;
+}
+
+static int skiplist_insert_clean( skiplist_t *skiplist, uintptr_t value )
 {
 	skiplist_node_t *update[SKIPLIST_MAX_LINKS];
 	unsigned int distances[SKIPLIST_MAX_LINKS];
 	int err = 0;
-
-	assert( skiplist );
 
 	skiplist_find_insert_path( skiplist, value, update, distances );
 
@@ -349,6 +398,18 @@ int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 	return err;
 }
 
+int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
+{
+	int err = -1;
+
+	if( skiplist_insert_is_clean( skiplist, value ) )
+	{
+		err = skiplist_insert_clean( skiplist, value );
+	}
+
+	return err;
+}
+
 static void skiplist_find_remove_path( skiplist_t *skiplist, uintptr_t value, skiplist_node_t *path[] )
 {
 	unsigned int i;
@@ -383,7 +444,19 @@ static void skiplist_find_remove_path( skiplist_t *skiplist, uintptr_t value, sk
 	}
 }
 
-int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
+static int skiplist_remove_is_clean( skiplist_t *skiplist, uintptr_t value )
+{
+	if( NULL == skiplist )
+	{
+		return 0;
+	}
+
+	(void) value;
+
+	return 1;
+}
+
+static int skiplist_remove_clean( skiplist_t *skiplist, uintptr_t value )
 {
 	skiplist_node_t *update[SKIPLIST_MAX_LINKS];
 	skiplist_node_t *remove;
@@ -429,7 +502,34 @@ int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
 	return err;
 }
 
-void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
+int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
+{
+	int err = -1;
+
+	if( skiplist_remove_is_clean( skiplist, value ) )
+	{
+		err = skiplist_remove_clean( skiplist, value );
+	}
+
+	return err;
+}
+
+static int skiplist_fprintf_is_clean( FILE *stream, const skiplist_t *skiplist )
+{
+	if( NULL == stream )
+	{
+		return 0;
+	}
+
+	if( NULL == skiplist )
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+static void skiplist_fprintf_clean( FILE *stream, const skiplist_t *skiplist )
 {
 	const skiplist_node_t *cur;
 	unsigned int i;
@@ -476,18 +576,38 @@ void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
 	fprintf( stream, "}\n" );
 }
 
+void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
+{
+	if( skiplist_fprintf_is_clean( stream, skiplist ) )
+	{
+		skiplist_fprintf_clean( stream, skiplist );
+	}
+}
+
 void skiplist_printf( const skiplist_t *skiplist )
 {
 	skiplist_fprintf( stdout, skiplist );
 }
 
-int skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist )
+static int skiplist_fprintf_filename_is_clean( const char *filename, const skiplist_t *skiplist )
+{
+	if( NULL == filename )
+	{
+		return 0;
+	}
+
+	if( NULL == skiplist )
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+static int skiplist_fprintf_filename_clean( const char *filename, const skiplist_t *skiplist )
 {
 	int err = -1;
 	FILE *fp;
-
-	assert( filename );
-	assert( skiplist );
 
 	fp = fopen( filename, "w" );
 	if( NULL != fp )
@@ -495,6 +615,18 @@ int skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist 
 		skiplist_fprintf( fp, skiplist );
 		fclose( fp );
 		err = 0;
+	}
+
+	return err;
+}
+
+int skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist )
+{
+	int err = -1;
+
+	if( skiplist_fprintf_filename_is_clean( filename, skiplist ) )
+	{
+		err = skiplist_fprintf_filename_clean( filename, skiplist );
 	}
 
 	return err;
