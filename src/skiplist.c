@@ -632,13 +632,26 @@ int skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist 
 	return err;
 }
 
-uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index )
+static int skiplist_at_index_is_clean( const skiplist_t *skiplist, unsigned int index )
+{
+	if( NULL == skiplist )
+	{
+		return 0;
+	}
+
+	if( index >= skiplist->num_nodes )
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+static uintptr_t skiplist_at_index_clean( const skiplist_t *skiplist, unsigned int index )
 {
 	unsigned int i;
 	unsigned int remaining;
 	const skiplist_node_t *cur;
-
-	assert( index < skiplist->num_nodes );
 
 	/* Indicies in the skiplist start counting from 1 due to the 1 step distance
 	   from head to the first element. So increment the index by 1. */
@@ -657,4 +670,16 @@ uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index )
 	}
 
 	return cur->value;
+}
+
+uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index )
+{
+	uintptr_t value = 0;
+
+	if( skiplist_at_index_is_clean( skiplist, index ) )
+	{
+		value = skiplist_at_index_clean( skiplist, index );
+	}
+
+	return value;
 }

@@ -427,6 +427,95 @@ static int abuse_skiplist_fprintf_filename( void )
 }
 
 /**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_at_index.
+ */
+static int abuse_skiplist_at_index( void )
+{
+	skiplist_t *skiplist;
+
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	if( !skiplist )
+		return -1;
+
+	if( skiplist_at_index( skiplist, 0 ) )
+		return -1;
+
+	if( skiplist_insert( skiplist, 1 ) )
+		return -1;
+
+	if( skiplist_at_index( NULL, 0 ) )
+		return -1;
+
+	if( skiplist_at_index( skiplist, 1 ) )
+		return -1;
+
+	skiplist_destroy( skiplist );
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_begin.
+ */
+static int abuse_skiplist_begin( void )
+{
+	skiplist_t *skiplist;
+
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	if( !skiplist )
+		return -1;
+
+	if( skiplist_insert( skiplist, 1 ) )
+		return -1;
+
+	if( skiplist_begin( NULL ) )
+		return -1;
+
+	skiplist_destroy( skiplist );
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_next.
+ */
+static int abuse_skiplist_next( void )
+{
+	skiplist_t *skiplist;
+
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	if( !skiplist )
+		return -1;
+
+	if( skiplist_insert( skiplist, 1 ) )
+		return -1;
+
+	if( skiplist_next( NULL ) )
+		return -1;
+
+	skiplist_destroy( skiplist );
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_node_value.
+ */
+static int abuse_skiplist_node_value( void )
+{
+	if( skiplist_node_value( NULL ) )
+		return -1;
+	return 0;
+}
+
+/**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_size.
+ */
+static int abuse_skiplist_size( void )
+{
+	if( skiplist_size( NULL ) )
+		return -1;
+	return 0;
+}
+
+/**
  * @brief TEST_CASE - Measures lookup trade off between number of elements in the list and number of links per node.
  */
 static int link_trade_off_lookup( void )
@@ -623,6 +712,11 @@ int main( int argc, char *argv[] )
 		TEST_CASE( abuse_skiplist_printf ),
 		TEST_CASE( abuse_skiplist_fprintf ),
 		TEST_CASE( abuse_skiplist_fprintf_filename ),
+		TEST_CASE( abuse_skiplist_at_index ),
+		TEST_CASE( abuse_skiplist_begin ),
+		TEST_CASE( abuse_skiplist_next ),
+		TEST_CASE( abuse_skiplist_node_value ),
+		TEST_CASE( abuse_skiplist_size ),
 		TEST_CASE( link_trade_off_lookup ),
 		TEST_CASE( link_trade_off_insert )
 	};
