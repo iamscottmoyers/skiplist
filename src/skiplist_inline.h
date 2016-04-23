@@ -20,7 +20,7 @@ static inline node_t *skiplist_next( const node_t *cur )
 	return cur->link[0].next;
 }
 
-static inline  uintptr_t skiplist_node_value( const node_t *node )
+static inline uintptr_t skiplist_node_value( const node_t *node )
 {
 	assert( node );
 	return node->value;
@@ -31,6 +31,5 @@ static inline unsigned int skiplist_size( const skiplist_t *skiplist )
 	assert( skiplist );
 	return skiplist->num_nodes;
 }
-
 
 #endif

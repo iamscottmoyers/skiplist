@@ -54,6 +54,78 @@ static unsigned int skiplist_rng_gen_u32( skiplist_rng_t *rng )
 	return (rng->m_z << 16) + rng->m_w;
 }
 
+static node_t *skiplist_node_allocate( unsigned int levels )
+{
+	node_t *node;
+
+	/* Allocate a node with space at the end for each level link.
+	   levels - 1 is used as one link is included in the size of node_t. */
+	node = malloc( sizeof( node_t ) + sizeof( link_t ) * (levels - 1) );
+
+	return node;
+}
+
+static void skiplist_node_deallocate( node_t *node )
+{
+	assert( node );
+
+	free( node );
+}
+
+static void skiplist_node_init( node_t *node, unsigned int levels, uintptr_t value )
+{
+	assert( node );
+
+	node->levels = levels;
+	node->value = value;
+}
+
+static node_t *skiplist_node_create( unsigned int levels, uintptr_t value )
+{
+	node_t *node;
+
+	node = skiplist_node_allocate( levels );
+
+	if( NULL != node )
+	{
+		skiplist_node_init( node, levels, value );
+	}
+
+	return node;
+}
+
+static skiplist_t *skiplist_allocate( unsigned int size_estimate_log2 )
+{
+	skiplist_t *skiplist;
+
+	/* number of links - 1 to take into account the 1 sized array at the end. */
+	skiplist = malloc( sizeof( skiplist_t ) + sizeof( link_t ) * (size_estimate_log2 - 1) );
+
+	return skiplist;
+}
+
+static void skiplist_deallocate( skiplist_t *skiplist )
+{
+	assert( skiplist );
+
+	free( skiplist );
+}
+
+void skiplist_init( skiplist_t *skiplist,
+                    skiplist_properties_t properties, unsigned int size_estimate_log2,
+                    skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
+{
+	assert( skiplist );
+
+	skiplist_rng_init( &skiplist->rng );
+	skiplist->properties = properties;
+	skiplist->compare = compare;
+	skiplist->print = print;
+	skiplist->num_nodes = 0;
+	skiplist->head.levels = size_estimate_log2;
+	memset( skiplist->head.link, 0, sizeof( link_t ) * size_estimate_log2 );
+}
+
 skiplist_t *skiplist_create( skiplist_properties_t properties, unsigned int size_estimate_log2,
                              skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
 {
@@ -65,16 +137,10 @@ skiplist_t *skiplist_create( skiplist_properties_t properties, unsigned int size
 	assert( print );
 	assert( SKIPLIST_PROPERTY_NONE == properties || SKIPLIST_PROPERTY_UNIQUE == properties );
 
-	skiplist = malloc( sizeof( skiplist_t ) + sizeof( link_t ) * (size_estimate_log2 - 1) );
+	skiplist = skiplist_allocate( size_estimate_log2 );
 	if( NULL != skiplist )
 	{
-		skiplist_rng_init( &skiplist->rng );
-		skiplist->properties = properties;
-		skiplist->compare = compare;
-		skiplist->print = print;
-		skiplist->num_nodes = 0;
-		skiplist->head.levels = size_estimate_log2;
-		memset( skiplist->head.link, 0, sizeof( link_t ) * size_estimate_log2 );
+		skiplist_init( skiplist, properties, size_estimate_log2, compare, print );
 	}
 
 	return skiplist;
@@ -90,10 +156,10 @@ void skiplist_destroy( skiplist_t *skiplist )
 		for( cur = skiplist->head.link[0].next; NULL != cur; cur = next )
 		{
 			next = cur->link[0].next;
-			free( cur );
+			skiplist_node_deallocate( cur );
 		}
 
-		free( skiplist );
+		skiplist_deallocate( skiplist );
 	}
 }
 
@@ -205,10 +271,8 @@ int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 		node_t *new_node;
 
 		node_levels = skiplist_compute_node_level( skiplist );
+		new_node = skiplist_node_create( node_levels, value );
 
-		/* Allocate a node with space at the end for each level link.
-		   node_levels - 1 is used as one link is included in the size of node_t. */
-		new_node = malloc( sizeof( node_t ) + sizeof( link_t ) * (node_levels - 1) );
 		if( NULL == new_node )
 		{
 			err = -1;
@@ -217,10 +281,7 @@ int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 		{
 			unsigned int i;
 
-			/* Populate node data. */
-			new_node->value = value;
-			new_node->levels = node_levels;
-
+			/* Increment the width of each link that jumps over this node. */
 			for( i = skiplist->head.levels; i-- != node_levels; )
 			{
 				++update[i]->link[i].width;
@@ -319,8 +380,8 @@ int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
 			}
 		}
 
-		/* Free the removed pointer. */
-		free( remove );
+		/* Deallocate the memory for the removed node. */
+		skiplist_node_deallocate( remove );
 
 		/* Decrement node counter. */
 		--skiplist->num_nodes;
