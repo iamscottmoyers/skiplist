@@ -11,6 +11,8 @@
 
 #include "skiplist.h"
 
+#define NELEMS(_array) (sizeof((_array)) / sizeof((_array)[0]))
+
 /**
  * @brief Acquire a current timestamp
  */
@@ -299,6 +301,44 @@ static int duplicate_entries_disallowed( void )
 }
 
 /**
+ * @brief TEST_CASE - Confirms incorrect inputs are handled gracefully for skiplist_create.
+ */
+static int abuse_skiplist_create( void )
+{
+	unsigned int i;
+	skiplist_t *skiplist;
+	const unsigned int bad_sizes[] = {0, SKIPLIST_MAX_LINKS + 1, UINT_MAX};
+
+	/* Bad property */
+	skiplist = skiplist_create( 0xffff, 5, int_compare, int_fprintf );
+	if( skiplist )
+		return -1;
+
+	/* Bad size estimates */
+	for( i = 0; i < NELEMS( bad_sizes ); ++i )
+	{
+		skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, bad_sizes[i],
+		                            int_compare, int_fprintf );
+		if( skiplist )
+			return -1;
+	}
+
+	/* Bad compare */
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, SKIPLIST_MAX_LINKS,
+	                            NULL, int_fprintf );
+	if( skiplist )
+		return -1;
+
+	/* Bad print */
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, SKIPLIST_MAX_LINKS,
+	                            int_compare, NULL );
+	if( skiplist )
+		return -1;
+
+	return 0;
+}
+
+/**
  * @brief TEST_CASE - Measures lookup trade off between number of elements in the list and number of links per node.
  */
 static int link_trade_off_lookup( void )
@@ -487,6 +527,7 @@ int main( int argc, char *argv[] )
 		TEST_CASE( pointers ),
 		TEST_CASE( duplicate_entries_allowed ),
 		TEST_CASE( duplicate_entries_disallowed ),
+		TEST_CASE( abuse_skiplist_create ),
 		TEST_CASE( link_trade_off_lookup ),
 		TEST_CASE( link_trade_off_insert )
 	};

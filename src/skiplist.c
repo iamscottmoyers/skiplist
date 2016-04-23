@@ -126,21 +126,60 @@ void skiplist_init( skiplist_t *skiplist,
 	memset( skiplist->head.link, 0, sizeof( skiplist_link_t ) * size_estimate_log2 );
 }
 
-skiplist_t *skiplist_create( skiplist_properties_t properties, unsigned int size_estimate_log2,
-                             skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
+static skiplist_t *skiplist_create_clean( skiplist_properties_t properties, unsigned int size_estimate_log2,
+                                            skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
 {
 	skiplist_t *skiplist;
 
-	assert( size_estimate_log2 > 0 );
-	assert( size_estimate_log2 <= SKIPLIST_MAX_LINKS );
-	assert( compare );
-	assert( print );
-	assert( SKIPLIST_PROPERTY_NONE == properties || SKIPLIST_PROPERTY_UNIQUE == properties );
-
 	skiplist = skiplist_allocate( size_estimate_log2 );
+
 	if( NULL != skiplist )
 	{
 		skiplist_init( skiplist, properties, size_estimate_log2, compare, print );
+	}
+
+	return skiplist;
+}
+
+static int skiplist_create_is_clean( skiplist_properties_t properties, unsigned int size_estimate_log2,
+                                     skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
+{
+	if( size_estimate_log2 <= 0 )
+	{
+		return 0;
+	}
+
+	if( size_estimate_log2 > SKIPLIST_MAX_LINKS )
+	{
+		return 0;
+	}
+
+	if( NULL == compare )
+	{
+		return 0;
+	}
+
+	if( NULL == print )
+	{
+		return 0;
+	}
+
+	if( SKIPLIST_PROPERTY_NONE != properties && SKIPLIST_PROPERTY_UNIQUE != properties )
+	{
+		return 0;
+	}
+
+	return 1;
+}
+
+skiplist_t *skiplist_create( skiplist_properties_t properties, unsigned int size_estimate_log2,
+                             skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
+{
+	skiplist_t *skiplist = NULL;
+
+	if( skiplist_create_is_clean( properties, size_estimate_log2, compare, print ) )
+	{
+		skiplist = skiplist_create_clean( properties, size_estimate_log2, compare, print );
 	}
 
 	return skiplist;
