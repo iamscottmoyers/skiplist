@@ -109,7 +109,7 @@ uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index );
  * @param [in] skiplist  The skiplist to return the first element for
  * @return A pointer to the first node in the skiplist, NULL if the skiplist is empty, or invalid input.
  */
-static skiplist_node_t *skiplist_begin( skiplist_t *skiplist );
+skiplist_node_t *skiplist_begin( skiplist_t *skiplist );
 
 /**
  * @brief Returns a pointer to one past the end of the skiplist.
@@ -118,7 +118,7 @@ static skiplist_node_t *skiplist_begin( skiplist_t *skiplist );
  *
  * @return  A NULL pointer.
  */
-static skiplist_node_t *skiplist_end( void );
+skiplist_node_t *skiplist_end( void );
 
 /**
  * @brief Returns a pointer to the node after @p cur in the skiplist.
@@ -127,7 +127,7 @@ static skiplist_node_t *skiplist_end( void );
  *
  * @return  A pointer to the node after @p cur. NULL if invalid input.
  */
-static skiplist_node_t *skiplist_next( const skiplist_node_t *cur );
+skiplist_node_t *skiplist_next( const skiplist_node_t *cur );
 
 /**
  * @brief Returns the value at the given node.
@@ -136,7 +136,7 @@ static skiplist_node_t *skiplist_next( const skiplist_node_t *cur );
  *
  * @return The value at the given node. 0 on invalid input.
  */
-static uintptr_t skiplist_node_value( const skiplist_node_t *node );
+uintptr_t skiplist_node_value( const skiplist_node_t *node );
 
 /**
  * @brief Returns the number of nodes in the skiplist.
@@ -145,8 +145,6 @@ static uintptr_t skiplist_node_value( const skiplist_node_t *node );
  *
  * @return The number of nodes in @p skiplist. 0 on invalid input.
  */
-static unsigned int skiplist_size( const skiplist_t *skiplist );
-
-#include "skiplist_inline.h"
+unsigned int skiplist_size( const skiplist_t *skiplist );
 
 #endif
