@@ -18,7 +18,7 @@
  * @param [in] print               Function for printing the value of the data
  *                                 in the skiplist.
  *
- * @return If successfully a new skiplist is returned, otherwise NULL.
+ * @return If successful a new skiplist is returned, otherwise NULL.
  */
 skiplist_t *skiplist_create( skiplist_properties_t properties,
                              unsigned int size_estimate_log2,
