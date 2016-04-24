@@ -46,7 +46,7 @@ static unsigned long long time_diff_ns( const struct timespec *start, const stru
  */
 static int int_compare( const uintptr_t a, const uintptr_t b )
 {
-	return a - b;
+	return (int)a - (int)b;
 }
 
 /**

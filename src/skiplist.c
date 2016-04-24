@@ -75,6 +75,7 @@ static void skiplist_node_deallocate( skiplist_node_t *node )
 static void skiplist_node_init( skiplist_node_t *node, unsigned int levels, uintptr_t value )
 {
 	assert( node );
+	assert( levels > 0 && levels <= SKIPLIST_MAX_LINKS );
 
 	node->levels = levels;
 	node->value = value;
@@ -235,6 +236,9 @@ static unsigned int skiplist_contains_clean( const skiplist_t *skiplist, uintptr
 	const skiplist_node_t *cur;
 
 	cur = &skiplist->head;
+
+	assert( cur->levels > 0 );
+
 	for( i = cur->levels; i-- != 0; )
 	{
 		for( ; NULL != cur->link[i].next; cur = cur->link[i].next )
@@ -296,6 +300,9 @@ static void skiplist_find_insert_path( skiplist_t *skiplist, uintptr_t value,
 	   Start searching from the highest level, this level spans the most number of
 	   nodes per next pointer. */
 	cur = &skiplist->head;
+
+	assert( cur->levels > 0 );
+
 	for( i = cur->levels; i-- != 0; )
 	{
 		assert( i < cur->levels );
@@ -417,6 +424,9 @@ static void skiplist_find_remove_path( skiplist_t *skiplist, uintptr_t value, sk
 
 	/* Find the path to a node that contains 'value'. */
 	cur = &skiplist->head;
+
+	assert( cur->levels > 0 );
+
 	for( i = cur->levels; i-- != 0; )
 	{
 		assert( i < cur->levels );
