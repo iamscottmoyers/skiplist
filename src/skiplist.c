@@ -468,7 +468,7 @@ static int skiplist_remove_clean( skiplist_t *skiplist, uintptr_t value )
 	skiplist_find_remove_path( skiplist, value, update );
 
 	remove = update[0]->link[0].next;
-	if( skiplist->compare( remove->value, value ) )
+	if( NULL == remove || skiplist->compare( remove->value, value ) )
 	{
 		err = -1;
 	}

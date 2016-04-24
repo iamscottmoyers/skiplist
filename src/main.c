@@ -70,6 +70,12 @@ static int simple( void )
 	if( !skiplist )
 		return -1;
 
+	if( skiplist_contains( skiplist, 10 ) )
+		return -1;
+
+	if( !skiplist_remove( skiplist, 10 ) )
+		return -1;
+
 	for( i = 0; i < 10; ++i )
 	{
 		if( skiplist_insert( skiplist, i ) )
