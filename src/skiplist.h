@@ -38,8 +38,11 @@ skiplist_t *skiplist_create( skiplist_properties_t properties,
  * @brief Destroys a skiplist that was created via skiplist_create().
  *
  * @param [in] skiplist  The skiplist to destroy.
+ *
+ * @retval SKIPLIST_ERROR_SUCCESS If the skiplist was successfully destroyed.
+ * @retval SKIPLIST_ERROR_INVALID_VALUE If @p skiplist was NULL or otherwise invalid.
  */
-void skiplist_destroy( skiplist_t *skiplist );
+skiplist_error_t skiplist_destroy( skiplist_t *skiplist );
 
 /**
  * @brief Determines whether the given value already exists in the skiplist set.

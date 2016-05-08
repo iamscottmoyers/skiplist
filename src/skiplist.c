@@ -203,14 +203,14 @@ skiplist_t *skiplist_create( skiplist_properties_t properties, unsigned int size
 	return skiplist;
 }
 
-static int skiplist_destroy_is_clean( skiplist_t *skiplist )
+static skiplist_error_t skiplist_destroy_check_clean( skiplist_t *skiplist )
 {
 	if( NULL == skiplist )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
 static void skiplist_destroy_clean( skiplist_t *skiplist )
@@ -227,12 +227,18 @@ static void skiplist_destroy_clean( skiplist_t *skiplist )
 	skiplist_deallocate( skiplist );
 }
 
-void skiplist_destroy( skiplist_t *skiplist )
+skiplist_error_t skiplist_destroy( skiplist_t *skiplist )
 {
-	if( skiplist_destroy_is_clean( skiplist ) )
+	skiplist_error_t err;
+
+	err = skiplist_destroy_check_clean( skiplist );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		skiplist_destroy_clean( skiplist );
 	}
+
+	return err;
 }
 
 static int skiplist_contains_is_clean( const skiplist_t *skiplist, uintptr_t value )
