@@ -241,16 +241,16 @@ skiplist_error_t skiplist_destroy( skiplist_t *skiplist )
 	return err;
 }
 
-static int skiplist_contains_is_clean( const skiplist_t *skiplist, uintptr_t value )
+static skiplist_error_t skiplist_contains_check_clean( const skiplist_t *skiplist, uintptr_t value )
 {
 	if( NULL == skiplist )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
 	(void) value;
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
 static unsigned int skiplist_contains_clean( const skiplist_t *skiplist, uintptr_t value )
@@ -281,13 +281,21 @@ static unsigned int skiplist_contains_clean( const skiplist_t *skiplist, uintptr
 	return 0;
 }
 
-unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value )
+unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value, skiplist_error_t * const error )
 {
 	unsigned int contains = 0;
+	skiplist_error_t err;
 
-	if( skiplist_contains_is_clean( skiplist, value ) )
+	err = skiplist_contains_check_clean( skiplist, value );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		contains = skiplist_contains_clean( skiplist, value );
+	}
+
+	if( NULL != error )
+	{
+		*error = err;
 	}
 
 	return contains;

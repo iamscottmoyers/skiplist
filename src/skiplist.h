@@ -47,13 +47,19 @@ skiplist_error_t skiplist_destroy( skiplist_t *skiplist );
 /**
  * @brief Determines whether the given value already exists in the skiplist set.
  *
- * @param [in] skiplist  The skiplist to search.
- * @param [in] value     The value to search for.
+ * @param [in]  skiplist  The skiplist to search.
+ * @param [in]  value     The value to search for.
+ * @param [out] error     Will point to the error status of the function on
+ *                        return. May be set to NULL.
+ *                        SKIPLIST_ERROR_SUCCESS if successful.
+ *                        SKIPLIST_ERROR_INVALID_INPUT if this function was
+ *                        called with invalid input values.
  *
- * @retval 1             If the value exists in the skiplist set.
- * @retval 0             If the value doesn't exist in the skiplist set, or input values were invalid.
+ * @retval 1              If the value exists in the skiplist set.
+ * @retval 0              If the value doesn't exist in the skiplist set,
+ *                        or input values were invalid.
  */
-unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value );
+unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value, skiplist_error_t * const error );
 
 /**
  * @brief Insert a value into a skiplist.

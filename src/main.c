@@ -70,7 +70,7 @@ static int simple( void )
 	if( !skiplist )
 		return -1;
 
-	if( skiplist_contains( skiplist, 10 ) )
+	if( skiplist_contains( skiplist, 10, NULL ) )
 		return -1;
 
 	if( !skiplist_remove( skiplist, 10 ) )
@@ -80,7 +80,7 @@ static int simple( void )
 	{
 		if( skiplist_insert( skiplist, i ) )
 			return -1;
-		if( !skiplist_contains( skiplist, i ) )
+		if( !skiplist_contains( skiplist, i, NULL ) )
 			return -1;
 	}
 
@@ -89,7 +89,7 @@ static int simple( void )
 		unsigned int value = rand();
 		if( skiplist_insert( skiplist, value ) )
 			return -1;
-		if( !skiplist_contains( skiplist, value ) )
+		if( !skiplist_contains( skiplist, value, NULL ) )
 			return -1;
 	}
 
@@ -214,12 +214,12 @@ static int pointers( void )
 
 	/* Confirm the skiplist contains what we expect. */
 	for( i = 0; i < sizeof(coords) / sizeof(coords[0]); ++i )
-		if( !skiplist_contains( skiplist, (uintptr_t) &coords[i] ) )
+		if( !skiplist_contains( skiplist, (uintptr_t) &coords[i], NULL ) )
 			return -1;
 
 	/* If we use a different pointer to point to the same values the skiplist should skill contain it. */
 	tmp = coords[0];
-	if( !skiplist_contains( skiplist, (uintptr_t) &tmp ) )
+	if( !skiplist_contains( skiplist, (uintptr_t) &tmp, NULL ) )
 		return -1;
 
 	/* Free resources. */
@@ -254,7 +254,7 @@ static int duplicate_entries_allowed( void )
 	}
 
 	for( i = 0; i < 5; ++i )
-		if( !skiplist_contains( skiplist, i ) )
+		if( !skiplist_contains( skiplist, i, NULL ) )
 			return -1;
 
 	for( i = 0, iter = skiplist_begin( skiplist ); iter != skiplist_end(); iter = skiplist_next( iter ), ++i )
@@ -293,7 +293,7 @@ static int duplicate_entries_disallowed( void )
 	}
 
 	for( i = 0; i < 5; ++i )
-		if( !skiplist_contains( skiplist, i ) )
+		if( !skiplist_contains( skiplist, i, NULL ) )
 			return -1;
 
 	for( i = 0, iter = skiplist_begin( skiplist ); iter != skiplist_end(); iter = skiplist_next( iter ), ++i )
@@ -359,7 +359,7 @@ static int abuse_skiplist_destroy( void )
  */
 static int abuse_skiplist_contains( void )
 {
-	if( skiplist_contains( NULL, 0 ) )
+	if( skiplist_contains( NULL, 0, NULL ) )
 		return -1;
 	return 0;
 }
@@ -578,7 +578,7 @@ static int link_trade_off_lookup( void )
 
 			time_stamp( &start );
 			for( j = 0; j < i; ++j )
-				if( !skiplist_contains( skiplist, j ) )
+				if( !skiplist_contains( skiplist, j, NULL ) )
 					return -1;
 			time_stamp( &end );
 			fprintf( fp, "\t%f", time_diff_ns( &start, &end ) / (double)i );
