@@ -8,22 +8,31 @@
 /**
  * @brief Creates a new skiplist.
  *
- * @param [in] properties          The properties for this skiplist. i.e.
- *                                 Unique entries or not.
- * @param [in] size_estimate_log2  An estimate of log2() of the maximum number
- *                                 of elements that will appear in the list at
- *                                 the same time.
- * @param [in] compare             Function for comparing the values that will
- *                                 be used in this skiplist.
- * @param [in] print               Function for printing the value of the data
- *                                 in the skiplist.
+ * @param [in]  properties          The properties for this skiplist. i.e.
+ *                                  Unique entries or not.
+ * @param [in]  size_estimate_log2  An estimate of log2() of the maximum number
+ *                                  of elements that will appear in the list at
+ *                                  the same time.
+ * @param [in]  compare             Function for comparing the values that will
+ *                                  be used in this skiplist.
+ * @param [in]  print               Function for printing the value of the data
+ *                                  in the skiplist.
+ * @param [out] error               Will point to the error status of the
+ *                                  function on return. May be set to NULL.
+ *                                  SKIPLIST_ERROR_SUCCESS if successful.
+ *                                  SKIPLIST_ERROR_INVALID_INPUT if this
+ *                                  function was called with invalid input
+ *                                  values.
+ *                                  SKIPLIST_ERROR_OUT_OF_MEMORY if this
+ *                                  function failed to allocate memory.
  *
  * @return If successful a new skiplist is returned, otherwise NULL.
  */
 skiplist_t *skiplist_create( skiplist_properties_t properties,
                              unsigned int size_estimate_log2,
                              skiplist_compare_pfn compare,
-                             skiplist_fprintf_pfn print );
+                             skiplist_fprintf_pfn print,
+                             skiplist_error_t * const error );
 
 /**
  * @brief Destroys a skiplist that was created via skiplist_create().

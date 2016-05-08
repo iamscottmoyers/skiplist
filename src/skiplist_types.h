@@ -119,4 +119,13 @@ typedef struct skiplist_t
 	skiplist_node_t head;
 } skiplist_t;
 
+typedef enum skiplist_error_t
+{
+	/* SKIPLIST_ERROR_SUCCESS must always be 0. */
+	SKIPLIST_ERROR_SUCCESS = 0,
+
+	SKIPLIST_ERROR_OUT_OF_MEMORY,
+	SKIPLIST_ERROR_INVALID_INPUT
+} skiplist_error_t;
+
 #endif

@@ -128,7 +128,7 @@ void skiplist_init( skiplist_t *skiplist,
 }
 
 static skiplist_t *skiplist_create_clean( skiplist_properties_t properties, unsigned int size_estimate_log2,
-                                            skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
+                                          skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
 {
 	skiplist_t *skiplist;
 
@@ -142,45 +142,62 @@ static skiplist_t *skiplist_create_clean( skiplist_properties_t properties, unsi
 	return skiplist;
 }
 
-static int skiplist_create_is_clean( skiplist_properties_t properties, unsigned int size_estimate_log2,
-                                     skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
+static skiplist_error_t skiplist_create_check_clean( skiplist_properties_t properties, unsigned int size_estimate_log2,
+                                                     skiplist_compare_pfn compare, skiplist_fprintf_pfn print,
+                                                     skiplist_error_t * const error )
 {
 	if( size_estimate_log2 <= 0 )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
 	if( size_estimate_log2 > SKIPLIST_MAX_LINKS )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
 	if( NULL == compare )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
 	if( NULL == print )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
 	if( SKIPLIST_PROPERTY_NONE != properties && SKIPLIST_PROPERTY_UNIQUE != properties )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
-	return 1;
+	(void) error;
+
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
 skiplist_t *skiplist_create( skiplist_properties_t properties, unsigned int size_estimate_log2,
-                             skiplist_compare_pfn compare, skiplist_fprintf_pfn print )
+                             skiplist_compare_pfn compare, skiplist_fprintf_pfn print,
+                             skiplist_error_t * const error )
 {
 	skiplist_t *skiplist = NULL;
+	skiplist_error_t err;
 
-	if( skiplist_create_is_clean( properties, size_estimate_log2, compare, print ) )
+	err = skiplist_create_check_clean( properties, size_estimate_log2, compare, print, error );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		skiplist = skiplist_create_clean( properties, size_estimate_log2, compare, print );
+
+		if( NULL == skiplist )
+		{
+			err = SKIPLIST_ERROR_OUT_OF_MEMORY;
+		}
+	}
+
+	if( NULL != error )
+	{
+		*error = err;
 	}
 
 	return skiplist;

@@ -66,7 +66,7 @@ static int simple( void )
 	skiplist_node_t *iter;
 	skiplist_t *skiplist;
 
-	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf, NULL );
 	if( !skiplist )
 		return -1;
 
@@ -190,7 +190,7 @@ static int pointers( void )
 	skiplist_node_t *iter;
 	coord_t tmp;
 
-	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 8, coord_compare, coord_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 8, coord_compare, coord_fprintf, NULL );
 	if( !skiplist ) return -1;
 
 	for( i = 0; i < sizeof(coords) / sizeof(coords[0]); ++i )
@@ -237,7 +237,7 @@ static int duplicate_entries_allowed( void )
 	skiplist_node_t *iter;
 	skiplist_t *skiplist;
 
-	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf, NULL );
 	if( !skiplist )
 		return -1;
 
@@ -276,7 +276,7 @@ static int duplicate_entries_disallowed( void )
 	skiplist_node_t *iter;
 	skiplist_t *skiplist;
 
-	skiplist = skiplist_create( SKIPLIST_PROPERTY_UNIQUE, 5, int_compare, int_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_UNIQUE, 5, int_compare, int_fprintf, NULL );
 	if( !skiplist )
 		return -1;
 
@@ -316,7 +316,7 @@ static int abuse_skiplist_create( void )
 	const unsigned int bad_sizes[] = {0, SKIPLIST_MAX_LINKS + 1, UINT_MAX};
 
 	/* Bad property */
-	skiplist = skiplist_create( 0xffff, 5, int_compare, int_fprintf );
+	skiplist = skiplist_create( 0xffff, 5, int_compare, int_fprintf, NULL );
 	if( skiplist )
 		return -1;
 
@@ -324,20 +324,20 @@ static int abuse_skiplist_create( void )
 	for( i = 0; i < NELEMS( bad_sizes ); ++i )
 	{
 		skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, bad_sizes[i],
-		                            int_compare, int_fprintf );
+		                            int_compare, int_fprintf, NULL );
 		if( skiplist )
 			return -1;
 	}
 
 	/* Bad compare */
 	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, SKIPLIST_MAX_LINKS,
-	                            NULL, int_fprintf );
+	                            NULL, int_fprintf, NULL );
 	if( skiplist )
 		return -1;
 
 	/* Bad print */
 	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, SKIPLIST_MAX_LINKS,
-	                            int_compare, NULL );
+	                            int_compare, NULL, NULL );
 	if( skiplist )
 		return -1;
 
@@ -400,7 +400,7 @@ static int abuse_skiplist_fprintf( void )
 {
 	skiplist_t *skiplist;
 
-	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf, NULL );
 	if( !skiplist )
 		return -1;
 
@@ -418,7 +418,7 @@ static int abuse_skiplist_fprintf_filename( void )
 {
 	skiplist_t *skiplist;
 
-	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf, NULL );
 	if( !skiplist )
 		return -1;
 
@@ -439,7 +439,7 @@ static int abuse_skiplist_at_index( void )
 {
 	skiplist_t *skiplist;
 
-	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf, NULL );
 	if( !skiplist )
 		return -1;
 
@@ -466,7 +466,7 @@ static int abuse_skiplist_begin( void )
 {
 	skiplist_t *skiplist;
 
-	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf, NULL );
 	if( !skiplist )
 		return -1;
 
@@ -487,7 +487,7 @@ static int abuse_skiplist_next( void )
 {
 	skiplist_t *skiplist;
 
-	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf );
+	skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, 5, int_compare, int_fprintf, NULL );
 	if( !skiplist )
 		return -1;
 
@@ -569,7 +569,7 @@ static int link_trade_off_lookup( void )
 			skiplist_t *skiplist;
 			struct timespec start, end;
 
-			skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, links, int_compare, int_fprintf );
+			skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, links, int_compare, int_fprintf, NULL );
 			if( !skiplist ) return -1;
 
 			for( j = 0; j < i; ++j )
@@ -641,7 +641,7 @@ static int link_trade_off_insert( void )
 		fp = fopen( filename, "w" );
 		if( !fp ) return -1;
 
-		skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, links, int_compare, int_fprintf );
+		skiplist = skiplist_create( SKIPLIST_PROPERTY_NONE, links, int_compare, int_fprintf, NULL );
 		if( !skiplist ) return -1;
 
 		next = 0;
