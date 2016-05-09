@@ -78,11 +78,13 @@ skiplist_error_t skiplist_insert( skiplist_t *skiplist, uintptr_t value );
  *
  * @param [in] skiplist  The skiplist to remove @p value from.
  * @param [in] value     The value to remove from @p skiplist.
+ *                       Must exist in the skiplist for this function to
+ *                       return successfully.
  *
- * @retval 0  if the value was successfully removed.
- * @retval -1 if the value did not exist in the skiplist, or input values were invalid.
+ * @retval SKIPLIST_ERROR_SUCCESS if the value was successfully removed.
+ * @retval SKIPLIST_ERROR_INVALID_INPUT if input values were invalid.
  */
-int skiplist_remove( skiplist_t *skiplist, uintptr_t value );
+skiplist_error_t skiplist_remove( skiplist_t *skiplist, uintptr_t value );
 
 /**
  * @brief Prints the skiplist in DOT format to stdout.

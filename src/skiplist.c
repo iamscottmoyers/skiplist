@@ -487,23 +487,23 @@ static void skiplist_find_remove_path( skiplist_t *skiplist, uintptr_t value, sk
 	}
 }
 
-static int skiplist_remove_is_clean( skiplist_t *skiplist, uintptr_t value )
+static skiplist_error_t skiplist_remove_check_clean( skiplist_t *skiplist, uintptr_t value )
 {
 	if( NULL == skiplist )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
 	(void) value;
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
-static int skiplist_remove_clean( skiplist_t *skiplist, uintptr_t value )
+static skiplist_error_t skiplist_remove_clean( skiplist_t *skiplist, uintptr_t value )
 {
 	skiplist_node_t *update[SKIPLIST_MAX_LINKS];
 	skiplist_node_t *remove;
-	int err = 0;
+	skiplist_error_t err = SKIPLIST_ERROR_SUCCESS;
 
 	assert( skiplist );
 
@@ -513,7 +513,7 @@ static int skiplist_remove_clean( skiplist_t *skiplist, uintptr_t value )
 	remove = update[0]->link[0].next;
 	if( NULL == remove || skiplist->compare( remove->value, value ) )
 	{
-		err = -1;
+		err = SKIPLIST_ERROR_INVALID_INPUT;
 	}
 	else
 	{
@@ -545,11 +545,13 @@ static int skiplist_remove_clean( skiplist_t *skiplist, uintptr_t value )
 	return err;
 }
 
-int skiplist_remove( skiplist_t *skiplist, uintptr_t value )
+skiplist_error_t skiplist_remove( skiplist_t *skiplist, uintptr_t value )
 {
-	int err = -1;
+	skiplist_error_t err;
 
-	if( skiplist_remove_is_clean( skiplist, value ) )
+	err = skiplist_remove_check_clean( skiplist, value );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		err = skiplist_remove_clean( skiplist, value );
 	}
