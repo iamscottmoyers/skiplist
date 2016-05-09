@@ -559,19 +559,19 @@ skiplist_error_t skiplist_remove( skiplist_t *skiplist, uintptr_t value )
 	return err;
 }
 
-static int skiplist_fprintf_is_clean( FILE *stream, const skiplist_t *skiplist )
+static skiplist_error_t skiplist_fprintf_check_clean( FILE *stream, const skiplist_t *skiplist )
 {
 	if( NULL == stream )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
 	if( NULL == skiplist )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
 static void skiplist_fprintf_clean( FILE *stream, const skiplist_t *skiplist )
@@ -621,17 +621,23 @@ static void skiplist_fprintf_clean( FILE *stream, const skiplist_t *skiplist )
 	fprintf( stream, "}\n" );
 }
 
-void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
+skiplist_error_t skiplist_fprintf( FILE *stream, const skiplist_t *skiplist )
 {
-	if( skiplist_fprintf_is_clean( stream, skiplist ) )
+	skiplist_error_t err;
+
+	err = skiplist_fprintf_check_clean( stream, skiplist );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		skiplist_fprintf_clean( stream, skiplist );
 	}
+
+	return err;
 }
 
-void skiplist_printf( const skiplist_t *skiplist )
+skiplist_error_t skiplist_printf( const skiplist_t *skiplist )
 {
-	skiplist_fprintf( stdout, skiplist );
+	return skiplist_fprintf( stdout, skiplist );
 }
 
 static int skiplist_fprintf_filename_is_clean( const char *filename, const skiplist_t *skiplist )

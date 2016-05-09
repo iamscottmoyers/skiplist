@@ -90,16 +90,22 @@ skiplist_error_t skiplist_remove( skiplist_t *skiplist, uintptr_t value );
  * @brief Prints the skiplist in DOT format to stdout.
  *
  * @param [in] skiplist  The skiplist to print.
+ *
+ * @retval SKIPLIST_ERROR_SUCCESS if the skiplist was successfully printed.
+ * @retval SKIPLIST_ERROR_INVALID_INPUT if the input values were invalid.
  */
-void skiplist_printf( const skiplist_t *skiplist );
+skiplist_error_t skiplist_printf( const skiplist_t *skiplist );
 
 /**
  * @brief Prints the skiplist in DOT format to the provided file stream.
  *
  * @param [in] stream    The filestream to print to.
  * @param [in] skiplist  The skiplist to print.
+ *
+ * @retval SKIPLIST_ERROR_SUCCESS if the skiplist was successfully printed.
+ * @retval SKIPLIST_ERROR_INVALID_INPUT if the input values were invalid.
  */
-void skiplist_fprintf( FILE *stream, const skiplist_t *skiplist );
+skiplist_error_t skiplist_fprintf( FILE *stream, const skiplist_t *skiplist );
 
 /**
  * @brief Prints the skiplist in DOT format to a file called @p filename.
