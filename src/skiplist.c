@@ -369,23 +369,23 @@ static void skiplist_find_insert_path( skiplist_t *skiplist, uintptr_t value,
 	}
 }
 
-static int skiplist_insert_is_clean( skiplist_t *skiplist, uintptr_t value )
+static skiplist_error_t skiplist_insert_check_clean( skiplist_t *skiplist, uintptr_t value )
 {
 	if( NULL == skiplist )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
 	(void) value;
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
-static int skiplist_insert_clean( skiplist_t *skiplist, uintptr_t value )
+static skiplist_error_t skiplist_insert_clean( skiplist_t *skiplist, uintptr_t value )
 {
 	skiplist_node_t *update[SKIPLIST_MAX_LINKS];
 	unsigned int distances[SKIPLIST_MAX_LINKS];
-	int err = 0;
+	skiplist_error_t err = SKIPLIST_ERROR_SUCCESS;
 
 	skiplist_find_insert_path( skiplist, value, update, distances );
 
@@ -401,7 +401,7 @@ static int skiplist_insert_clean( skiplist_t *skiplist, uintptr_t value )
 
 		if( NULL == new_node )
 		{
-			err = -1;
+			err = SKIPLIST_ERROR_OUT_OF_MEMORY;
 		}
 		else
 		{
@@ -436,11 +436,13 @@ static int skiplist_insert_clean( skiplist_t *skiplist, uintptr_t value )
 	return err;
 }
 
-int skiplist_insert( skiplist_t *skiplist, uintptr_t value )
+skiplist_error_t skiplist_insert( skiplist_t *skiplist, uintptr_t value )
 {
-	int err = -1;
+	skiplist_error_t err;
 
-	if( skiplist_insert_is_clean( skiplist, value ) )
+	err = skiplist_insert_check_clean( skiplist, value );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		err = skiplist_insert_clean( skiplist, value );
 	}

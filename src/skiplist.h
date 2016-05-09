@@ -67,10 +67,11 @@ unsigned int skiplist_contains( const skiplist_t *skiplist, uintptr_t value, ski
  * @param [in] skiplist  The skiplist to insert @p value into.
  * @param [in] value     The value to insert into @p skiplist.
  *
- * @retval 0  if successful.
- * @retval -1 if a memory allocation failed, or input values were invalid.
+ * @retval SKIPLIST_ERROR_SUCCESS if successful.
+ * @retval SKIPLIST_ERROR_OUT_OF_MEMORY if a memory allocation failed
+ * @retval SKIPLIST_ERROR_INVALID_INPUT if input values were invalid.
  */
-int skiplist_insert( skiplist_t *skiplist, uintptr_t value );
+skiplist_error_t skiplist_insert( skiplist_t *skiplist, uintptr_t value );
 
 /**
  * @brief Removes a value from a skiplist.
