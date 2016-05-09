@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-O2 -g -Wall -pedantic -Wextra -std=gnu99
+CFLAGS=-O2 -g -Wall -pedantic -Wextra -std=c89 -Wno-long-long
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Darwin)
