@@ -657,15 +657,18 @@ static skiplist_error_t skiplist_fprintf_filename_check_clean( const char *filen
 
 static skiplist_error_t skiplist_fprintf_filename_clean( const char *filename, const skiplist_t *skiplist )
 {
-	skiplist_error_t err = SKIPLIST_ERROR_OPENING_FILE;
+	skiplist_error_t err = SKIPLIST_ERROR_SUCCESS;
 	FILE *fp;
 
 	fp = fopen( filename, "w" );
-	if( NULL != fp )
+	if( NULL == fp )
+	{
+		err = SKIPLIST_ERROR_OPENING_FILE;
+	}
+	else
 	{
 		skiplist_fprintf( fp, skiplist );
 		fclose( fp );
-		err = SKIPLIST_ERROR_SUCCESS;
 	}
 
 	return err;
