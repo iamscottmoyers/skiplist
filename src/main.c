@@ -107,7 +107,7 @@ static int simple( void )
 	}
 
 	for( i = 0; i < skiplist_size( skiplist ); ++i )
-		skiplist_at_index( skiplist, i );
+		skiplist_at_index( skiplist, i, NULL );
 
 	if( skiplist_fprintf_filename( "simple.dot", skiplist ) )
 		return -1;
@@ -443,16 +443,16 @@ static int abuse_skiplist_at_index( void )
 	if( !skiplist )
 		return -1;
 
-	if( skiplist_at_index( skiplist, 0 ) )
+	if( skiplist_at_index( skiplist, 0, NULL ) )
 		return -1;
 
 	if( skiplist_insert( skiplist, 1 ) )
 		return -1;
 
-	if( skiplist_at_index( NULL, 0 ) )
+	if( skiplist_at_index( NULL, 0, NULL ) )
 		return -1;
 
-	if( skiplist_at_index( skiplist, 1 ) )
+	if( skiplist_at_index( skiplist, 1, NULL ) )
 		return -1;
 
 	skiplist_destroy( skiplist );

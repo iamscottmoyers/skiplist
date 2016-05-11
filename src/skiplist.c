@@ -685,19 +685,19 @@ skiplist_error_t skiplist_fprintf_filename( const char *filename, const skiplist
 	return err;
 }
 
-static int skiplist_at_index_is_clean( const skiplist_t *skiplist, unsigned int index )
+static skiplist_error_t skiplist_at_index_check_clean( const skiplist_t *skiplist, unsigned int index )
 {
 	if( NULL == skiplist )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
 	if( index >= skiplist->num_nodes )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
 static uintptr_t skiplist_at_index_clean( const skiplist_t *skiplist, unsigned int index )
@@ -725,13 +725,21 @@ static uintptr_t skiplist_at_index_clean( const skiplist_t *skiplist, unsigned i
 	return cur->value;
 }
 
-uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index )
+uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index, skiplist_error_t * const error )
 {
 	uintptr_t value = 0;
+	skiplist_error_t err;
 
-	if( skiplist_at_index_is_clean( skiplist, index ) )
+	err = skiplist_at_index_check_clean( skiplist, index );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		value = skiplist_at_index_clean( skiplist, index );
+	}
+
+	if( NULL != error )
+	{
+		*error = err;
 	}
 
 	return value;

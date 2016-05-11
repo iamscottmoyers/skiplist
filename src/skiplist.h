@@ -124,12 +124,17 @@ skiplist_error_t skiplist_fprintf_filename( const char *filename, const skiplist
  *
  * @pre @p index must be less than the number of elements in @p skiplist (@see skiplist_size()).
  *
- * @param [in] skiplist  The skiplist to lookup index @p index in.
- * @param [in] index     The index to find the value for.
+ * @param [in]  skiplist  The skiplist to lookup index @p index in.
+ * @param [in]  index     The index to find the value for.
+ * @param [out] error     Will point to the error status of the function on
+ *                        return. May be set to NULL.
+ *                        SKIPLIST_ERROR_SUCCESS if successful.
+ *                        SKIPLIST_ERROR_INVALID_INPUT if this function was
+ *                        called with invalid input values.
  *
  * @return The value at index @p index.
  */
-uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index );
+uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index, skiplist_error_t * const error );
 
 /**
  * @brief Returns a pointer to the start of the skiplist.
