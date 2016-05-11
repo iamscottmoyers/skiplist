@@ -640,24 +640,24 @@ skiplist_error_t skiplist_printf( const skiplist_t *skiplist )
 	return skiplist_fprintf( stdout, skiplist );
 }
 
-static int skiplist_fprintf_filename_is_clean( const char *filename, const skiplist_t *skiplist )
+static skiplist_error_t skiplist_fprintf_filename_check_clean( const char *filename, const skiplist_t *skiplist )
 {
 	if( NULL == filename )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
 	if( NULL == skiplist )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
-static int skiplist_fprintf_filename_clean( const char *filename, const skiplist_t *skiplist )
+static skiplist_error_t skiplist_fprintf_filename_clean( const char *filename, const skiplist_t *skiplist )
 {
-	int err = -1;
+	skiplist_error_t err = SKIPLIST_ERROR_OPENING_FILE;
 	FILE *fp;
 
 	fp = fopen( filename, "w" );
@@ -665,17 +665,19 @@ static int skiplist_fprintf_filename_clean( const char *filename, const skiplist
 	{
 		skiplist_fprintf( fp, skiplist );
 		fclose( fp );
-		err = 0;
+		err = SKIPLIST_ERROR_SUCCESS;
 	}
 
 	return err;
 }
 
-int skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist )
+skiplist_error_t skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist )
 {
-	int err = -1;
+	skiplist_error_t err;
 
-	if( skiplist_fprintf_filename_is_clean( filename, skiplist ) )
+	err = skiplist_fprintf_filename_check_clean( filename, skiplist );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		err = skiplist_fprintf_filename_clean( filename, skiplist );
 	}

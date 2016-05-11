@@ -113,10 +113,11 @@ skiplist_error_t skiplist_fprintf( FILE *stream, const skiplist_t *skiplist );
  * @param [in] filename  The name of the file to print to.
  * @param [in] skiplist  The skiplist to print.
  *
- * @retval 0   If the skiplist was successfully printed to @p filename.
- * @retval -1  If writing to the given filename failed, or input values were invalid.
+ * @retval SKIPLIST_ERROR_SUCCESS if the skiplist was successfully printed to @p filename.
+ * @retval SKIPLIST_ERROR_INVALID_INPUT if the input values were invalid.
+ * @retval SKIPLIST_ERROR_OPENING_FILE if the function was unable to open @p filename for writing.
  */
-int skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist );
+skiplist_error_t skiplist_fprintf_filename( const char *filename, const skiplist_t *skiplist );
 
 /**
  * @brief Returns the value of the node at the given index.
