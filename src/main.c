@@ -101,7 +101,7 @@ static int simple( void )
 	     iter != skiplist_end();
 	     iter = skiplist_next( iter ) )
 	{
-		uintptr_t value = skiplist_node_value( iter );
+		uintptr_t value = skiplist_node_value( iter, NULL );
 		if( value >= 5 && value < 10 )
 			return -1;
 	}
@@ -206,7 +206,7 @@ static int pointers( void )
 	tmp.y = 0;
 	for( iter = skiplist_begin( skiplist ); iter != skiplist_end(); iter = skiplist_next( iter ) )
 	{
-		coord_t *cur = (coord_t *)skiplist_node_value( iter );
+		coord_t *cur = (coord_t *)skiplist_node_value( iter, NULL );
 		if( cur->x < tmp.x ) return -1;
 		if( cur->x == tmp.x && cur->y < tmp.y ) return -1;
 		tmp = *cur;
@@ -258,7 +258,7 @@ static int duplicate_entries_allowed( void )
 			return -1;
 
 	for( i = 0, iter = skiplist_begin( skiplist ); iter != skiplist_end(); iter = skiplist_next( iter ), ++i )
-		if( skiplist_node_value( iter ) != (i / 2) )
+		if( skiplist_node_value( iter, NULL ) != (i / 2) )
 			return -1;
 
 	if( skiplist_fprintf_filename( "duplicate_entries_allowed.dot", skiplist ) )
@@ -297,7 +297,7 @@ static int duplicate_entries_disallowed( void )
 			return -1;
 
 	for( i = 0, iter = skiplist_begin( skiplist ); iter != skiplist_end(); iter = skiplist_next( iter ), ++i )
-		if( skiplist_node_value( iter ) != i )
+		if( skiplist_node_value( iter, NULL ) != i )
 			return -1;
 
 	if( skiplist_fprintf_filename( "duplicate_entries_disallowed.dot", skiplist ) )
@@ -506,7 +506,7 @@ static int abuse_skiplist_next( void )
  */
 static int abuse_skiplist_node_value( void )
 {
-	if( skiplist_node_value( NULL ) )
+	if( skiplist_node_value( NULL, NULL ) )
 		return -1;
 	return 0;
 }

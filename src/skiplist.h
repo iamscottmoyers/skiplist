@@ -165,11 +165,15 @@ skiplist_node_t *skiplist_next( const skiplist_node_t *cur );
 /**
  * @brief Returns the value at the given node.
  *
- * @param [in] node  The node to return the value for.
+ * @param [in]  node   The node to return the value for.
+ * @param [out] error  Will point to the error status of the function on return.
+ *                     SKIPLIST_ERROR_SUCCESS if successful.
+ *                     SKIPLIST_ERROR_INVALID_INPUT if this function was called
+ *                     with invalid input values.
  *
  * @return The value at the given node. 0 on invalid input.
  */
-uintptr_t skiplist_node_value( const skiplist_node_t *node );
+uintptr_t skiplist_node_value( const skiplist_node_t *node, skiplist_error_t * const error );
 
 /**
  * @brief Returns the number of nodes in the skiplist.

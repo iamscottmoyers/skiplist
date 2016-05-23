@@ -807,14 +807,14 @@ skiplist_node_t *skiplist_next( const skiplist_node_t *cur )
 	return next;
 }
 
-static int skiplist_node_value_is_clean( const skiplist_node_t *node )
+static skiplist_error_t skiplist_node_value_check_clean( const skiplist_node_t *node )
 {
 	if( NULL == node )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
 static uintptr_t skiplist_node_value_clean( const skiplist_node_t *node )
@@ -822,13 +822,21 @@ static uintptr_t skiplist_node_value_clean( const skiplist_node_t *node )
 	return node->value;
 }
 
-uintptr_t skiplist_node_value( const skiplist_node_t *node )
+uintptr_t skiplist_node_value( const skiplist_node_t *node, skiplist_error_t * const error )
 {
 	uintptr_t value = 0;
+	skiplist_error_t err;
 
-	if( skiplist_node_value_is_clean( node ) )
+	err = skiplist_node_value_check_clean( node );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		value = skiplist_node_value_clean( node );
+	}
+
+	if( NULL != error )
+	{
+		*error = err;
 	}
 
 	return value;
