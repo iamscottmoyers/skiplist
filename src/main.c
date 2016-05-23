@@ -106,7 +106,7 @@ static int simple( void )
 			return -1;
 	}
 
-	for( i = 0; i < skiplist_size( skiplist ); ++i )
+	for( i = 0; i < skiplist_size( skiplist, NULL ); ++i )
 		skiplist_at_index( skiplist, i, NULL );
 
 	if( skiplist_fprintf_filename( "simple.dot", skiplist ) )
@@ -248,7 +248,7 @@ static int duplicate_entries_allowed( void )
 		{
 			if( skiplist_insert( skiplist, j ) )
 				return -1;
-			if( skiplist_size( skiplist ) != (i * 5 + j + 1) )
+			if( skiplist_size( skiplist, NULL ) != (i * 5 + j + 1) )
 				return -1;
 		}
 	}
@@ -287,7 +287,7 @@ static int duplicate_entries_disallowed( void )
 		{
 			if( skiplist_insert( skiplist, j ) )
 				return -1;
-			if( skiplist_size( skiplist ) != (i ? 5 : j+1) )
+			if( skiplist_size( skiplist, NULL ) != (i ? 5 : j+1) )
 				return -1;
 		}
 	}
@@ -516,7 +516,7 @@ static int abuse_skiplist_node_value( void )
  */
 static int abuse_skiplist_size( void )
 {
-	if( skiplist_size( NULL ) )
+	if( skiplist_size( NULL, NULL ) )
 		return -1;
 	return 0;
 }

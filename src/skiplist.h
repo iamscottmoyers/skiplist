@@ -178,10 +178,14 @@ uintptr_t skiplist_node_value( const skiplist_node_t *node, skiplist_error_t * c
 /**
  * @brief Returns the number of nodes in the skiplist.
  *
- * @param [in] skiplist  A pointer to the skiplist to count the nodes in.
+ * @param [in]  skiplist  A pointer to the skiplist to count the nodes in.
+ * @param [out] error     Will point to the error status of the function on return.
+ *                        SKIPLIST_ERROR_SUCCESS if successful.
+ *                        SKIPLIST_ERROR_INVALID_INPUT if this function was called
+ *                        with invalid input values.
  *
  * @return The number of nodes in @p skiplist. 0 on invalid input.
  */
-unsigned int skiplist_size( const skiplist_t *skiplist );
+unsigned int skiplist_size( const skiplist_t *skiplist, skiplist_error_t * const error );
 
 #endif

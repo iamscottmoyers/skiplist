@@ -842,14 +842,14 @@ uintptr_t skiplist_node_value( const skiplist_node_t *node, skiplist_error_t * c
 	return value;
 }
 
-static int skiplist_size_is_clean( const skiplist_t *skiplist )
+static skiplist_error_t skiplist_size_check_clean( const skiplist_t *skiplist )
 {
 	if( NULL == skiplist )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
 static unsigned int skiplist_size_clean( const skiplist_t *skiplist )
@@ -857,13 +857,21 @@ static unsigned int skiplist_size_clean( const skiplist_t *skiplist )
 	return skiplist->num_nodes;
 }
 
-unsigned int skiplist_size( const skiplist_t *skiplist )
+unsigned int skiplist_size( const skiplist_t *skiplist, skiplist_error_t * const error )
 {
 	unsigned int size = 0;
+	skiplist_error_t err;
 
-	if( skiplist_size_is_clean( skiplist ) )
+	err = skiplist_size_check_clean( skiplist );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		size = skiplist_size_clean( skiplist );
+	}
+
+	if( NULL != error )
+	{
+		*error = err;
 	}
 
 	return size;
