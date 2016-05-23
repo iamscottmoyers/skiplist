@@ -748,14 +748,14 @@ uintptr_t skiplist_at_index( const skiplist_t *skiplist, unsigned int index, ski
 	return value;
 }
 
-static int skiplist_begin_is_clean( skiplist_t *skiplist )
+static skiplist_error_t skiplist_begin_check_clean( skiplist_t *skiplist )
 {
 	if( NULL == skiplist )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
 static skiplist_node_t *skiplist_begin_clean( skiplist_t *skiplist )
@@ -766,8 +766,11 @@ static skiplist_node_t *skiplist_begin_clean( skiplist_t *skiplist )
 skiplist_node_t *skiplist_begin( skiplist_t *skiplist )
 {
 	skiplist_node_t *begin = NULL;
+	skiplist_error_t err;
 
-	if( skiplist_begin_is_clean( skiplist ) )
+	err = skiplist_begin_check_clean( skiplist );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		begin = skiplist_begin_clean( skiplist );
 	}
@@ -780,14 +783,14 @@ skiplist_node_t *skiplist_end( void )
 	return NULL;
 }
 
-static int skiplist_next_is_clean( const skiplist_node_t *cur )
+static skiplist_error_t skiplist_next_check_clean( const skiplist_node_t *cur )
 {
 	if( NULL == cur )
 	{
-		return 0;
+		return SKIPLIST_ERROR_INVALID_INPUT;
 	}
 
-	return 1;
+	return SKIPLIST_ERROR_SUCCESS;
 }
 
 static skiplist_node_t *skiplist_next_clean( const skiplist_node_t *cur )
@@ -798,8 +801,11 @@ static skiplist_node_t *skiplist_next_clean( const skiplist_node_t *cur )
 skiplist_node_t *skiplist_next( const skiplist_node_t *cur )
 {
 	skiplist_node_t *next = NULL;
+	skiplist_error_t err;
 
-	if( skiplist_next_is_clean( cur ) )
+	err = skiplist_next_check_clean( cur );
+
+	if( SKIPLIST_ERROR_SUCCESS == err )
 	{
 		next = skiplist_next_clean( cur );
 	}
